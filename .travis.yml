@@ -1,0 +1,26 @@
+language: node_js
+
+node_js:
+  - "6"
+
+install:
+  - yarn
+
+env:
+  - MM_TOLERANCE=0.05
+
+before_script:
+  - yarn start &
+  - sleep 5
+
+script:
+  - yarn test
+
+after_script:
+  - .travis/push.sh
+
+after_success:
+  - echo "Yay! Your site runs fine."
+
+after_failure:
+  - echo "Uh-oh - something is wrong with your code!"
