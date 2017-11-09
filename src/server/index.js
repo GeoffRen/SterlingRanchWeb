@@ -40,7 +40,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let options = {
     useMongoClient: true
 };
-mongoose.connect('mongodb://localhost:32768/heminggs', options)
+mongoose.connect('mongodb://192.168.99.100:32768/reng2', options)
     .then(() => {
         console.log('\t MongoDB connected');
 

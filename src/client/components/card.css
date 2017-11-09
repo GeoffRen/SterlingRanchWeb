@@ -30,3 +30,7 @@ img.card {
     height: auto;
     width: 100%;
 }
+
+img.selected {
+    border: 5px solid yellow;
+}

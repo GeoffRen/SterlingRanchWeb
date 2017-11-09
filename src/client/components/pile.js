@@ -7,13 +7,12 @@ import {} from './card.css';
 
 /*************************************************************************/
 
-export const Card = ({ card, top, left, onClick }) => {
+export const Card = ({ card, top, left}) => {
     const source = card.up ? `/images/${card.value}_of_${card.suit}.png` : "/images/face_down.jpg";
     const style = {left: `${left}%`, top: `${top}%`};
     const id = `${card.suit}:${card.value}`;
     return <img
         id={id}
-        onClick={onClick}
         className="card"
         style={style}
         src={source}
@@ -31,13 +30,12 @@ export class Pile extends Component {
                 up={this.props.up}
                 top={top}
                 left={left}
-                onClick={this.props.onClick}
             />;
         });
         const className = this.props.className ?
             "card-pile " + this.props.className :
             "card-pile";
-        return <div className={className}>
+        return <div id={this.props.pileName} className={className} onClick={this.props.onClick}>
             <div className="card-pile-frame"/>
             {cards}
         </div>;
