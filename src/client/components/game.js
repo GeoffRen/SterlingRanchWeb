@@ -277,47 +277,45 @@ class Game extends Component {
 
     onClick(ev) {
         console.log("~~~~~~~");
+        console.log("STATE.TARGET");
         console.log(this.state.target);
 
         let clickTarget = ev.target;
         console.log(`CLICKTARGET ID: ${clickTarget.id}`);
 
+        console.log("CARDINFO");
         let cardInfo = this.getCardInfo(clickTarget.id);
         console.log(cardInfo);
 
-        let clickPile = cardInfo ? cardInfo.pile : clickTarget.id;
-        // if (cardInfo)
-        
-        let move = null;
-        if (this.state.target) {
-            move = this.createMove(clickPile);
-            return;
-        }
-
-        if (!cardInfo) {
-            return;
-        }
-
-        if (cardInfo.up) {
-            if (this.state.target) {
-                this.state.target.card.classList.remove("selected");
-            }
+        if (!this.state.target && cardInfo && cardInfo.up) {
+            console.log("ORIGINAL CLICK");
             this.setState({ target: {
-                                card: cardInfo.card,
-                                pile: cardInfo.pile
-                            }
-                        });
+                card: cardInfo.card,
+                pile: cardInfo.pile,
+                ref: clickTarget
+            }});
             clickTarget.classList.add("selected");
-        } else if (!cardInfo.up) {
-            this.removeHighlight();
+
+        } else if (this.state.target && cardInfo) {
+            if (cardInfo.up) {
+                console.log("MOVE TO UP CARD");
+                this.createMove(cardInfo.pile);
+            } else {
+                console.log("CLICK ON DOWN CARD");
+                this.removeHighlight();
+            }
+
+        } else if (this.state.target) {
+            console.log("MOVE TO PILE");
+            this.createMove(clickTarget.id);
+        }
+
+        else {
+            console.log("NO ACTION");
         }
     }
 
     createMove(newLocation) {
-        if (newLocation === this.state.target.pile) {
-            return null;
-        }
-
         let cardsArr = [];
         let curCard = {
             suit: this.state.target.card.suit,
@@ -331,13 +329,25 @@ class Game extends Component {
             dst: newLocation
         }
 
+        console.log("MOVE");
         console.log(move);
-        return move;
+
+        $.ajax({
+            url: `/v1/game/${this.props.match.params.id}`,
+            method: "put",
+            data: move,
+        }).then(data => {
+            console.log("SUCCESSFUL MOVE");
+            console.log(data);
+        }).fail(err => {
+            console.log("ERROR");
+            console.log(err.responseText);
+        });
     }
 
     removeHighlight() {
         if(this.state.target) {
-            this.state.target.card.classList.remove("selected");
+            this.state.target.ref.classList.remove("selected");
             this.setState({ target: null });
         }
     }

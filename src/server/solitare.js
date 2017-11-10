@@ -1,6 +1,7 @@
 /* Copyright G. Hemingway, @2017 */
 'use strict';
 
+let _ = require('underscore');
 
 let shuffleCards = (includeJokers = false) => {
     //return [{ "suit": "clubs", "value": 7 }, { "suit": "diamonds", "value": 12 }];
@@ -82,85 +83,97 @@ let filterForProfile = game => ({
 
 let validMoves = state => {
     let moves = [];
-    this.addAllMovesForStack(moves, "stack1", this.state.stack1);
-    this.addAllMovesForStack(moves, "stack2", this.state.stack2);
-    this.addAllMovesForStack(moves, "stack3", this.state.stack3);
-    this.addAllMovesForStack(moves, "stack4", this.state.stack4);
-    this.addAllMovesForPile(moves, "pile1", this.state.pile1);
-    this.addAllMovesForPile(moves, "pile2", this.state.pile2);
-    this.addAllMovesForPile(moves, "pile3", this.state.pile3);
-    this.addAllMovesForPile(moves, "pile4", this.state.pile4);
-    this.addAllMovesForPile(moves, "pile5", this.state.pile5);
-    this.addAllMovesForPile(moves, "pile6", this.state.pile6);
-    this.addAllMovesForPile(moves, "pile7", this.state.pile7);
-
-    console.log(moves);
+    addAllMovesForStack(moves, "stack1", state.stack1, state);
+    addAllMovesForStack(moves, "stack2", state.stack2, state);
+    addAllMovesForStack(moves, "stack3", state.stack3, state);
+    addAllMovesForStack(moves, "stack4", state.stack4, state);
+    addAllMovesForPile(moves, "pile1", state.pile1, state);
+    addAllMovesForPile(moves, "pile2", state.pile2, state);
+    addAllMovesForPile(moves, "pile3", state.pile3, state);
+    addAllMovesForPile(moves, "pile4", state.pile4, state);
+    addAllMovesForPile(moves, "pile5", state.pile5, state);
+    addAllMovesForPile(moves, "pile6", state.pile6, state);
+    addAllMovesForPile(moves, "pile7", state.pile7, state);
 
     return moves;
 };
 
 let validateMove = (state, requestedMove) => {
     const moves = validMoves(state);
-    if (moves.includes(requestedMove)) {
+    console.log(moves);
+    console.log(moves[0]);
+    console.log(requestedMove);
+    if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
-    }
-    return { error: "The requested move is invalid" };
-};
-
-let addAllMovesForStack = (moves, dst, dstArr) => {
-    let move = this.findMoveForStack(dst, this.getValidMoveToStack(dstArr[dstArr.length - 1]));
-    if (move.length > 0) {
-        moves.push(move);
+    } else {
+        return { error: "The requested move is invalid" };
     }
 };
 
-let addAllMovesForPile = (moves, dst, dstArr) => {
-    let move = this.findMoveForPile(dst, this.getValidMoveToPile(dstArr[dstArr.length - 1]));
-    if (move.length > 0) {
-        moves.push(move);
+let addAllMovesForStack = (moves, dst, dstArr, state) => {
+    let newMoves = findMoveForStack(dst, getValidMoveToStack(dstArr[dstArr.length - 1]), state);
+    if (newMoves.length > 0) {
+        for (let move of newMoves) {
+            moves.push(move);
+        }
+    }
+};
+
+let addAllMovesForPile = (moves, dst, dstArr, state) => {
+    let newMoves = findMoveForPile(dst, getValidMoveToPile(dstArr[dstArr.length - 1]), state);
+    if (newMoves.length > 0) {
+        console.log("CONCAT MOVE");
+        console.log(newMoves);
+        console.log(moves);
+        // moves.concat(newMoves);
+        for (let move of newMoves) {
+            moves.push(move);
+        }
+        console.log(moves);
+        console.log("DONE CONCAT");
     }
 }
 
-let findMoveForStack = (pile, card) => {
+let findMoveForStack = (pile, card, state) => {
     if (!card) {
         return null;
     }
 
-    console.log(`IN FINDMOVEFORSTACK: ${pile} ${card.suit} ${card.value}`);
+    //console.log(`IN FINDMOVEFORSTACK: ${pile} ${card.suit} ${card.value}`);
 
     let moves = [];
-    this.createSingleMove(this.state.discard, "discard", pile, card, moves);
-    this.createSingleMove(this.state.pile1, "pile1", pile, card, moves);
-    this.createSingleMove(this.state.pile2, "pile2", pile, card, moves);
-    this.createSingleMove(this.state.pile3, "pile3", pile, card, moves);
-    this.createSingleMove(this.state.pile4, "pile4", pile, card, moves);
-    this.createSingleMove(this.state.pile5, "pile5", pile, card, moves);
-    this.createSingleMove(this.state.pile6, "pile6", pile, card, moves);
-    this.createSingleMove(this.state.pile7, "pile7", pile, card, moves);
+    createSingleMove(state.discard, "discard", pile, card, moves);
+    createSingleMove(state.pile1, "pile1", pile, card, moves);
+    createSingleMove(state.pile2, "pile2", pile, card, moves);
+    createSingleMove(state.pile3, "pile3", pile, card, moves);
+    createSingleMove(state.pile4, "pile4", pile, card, moves);
+    createSingleMove(state.pile5, "pile5", pile, card, moves);
+    createSingleMove(state.pile6, "pile6", pile, card, moves);
+    createSingleMove(state.pile7, "pile7", pile, card, moves);
 
     return moves;
 };
 
-let findMoveForPile = (pile, card) => {
+let findMoveForPile = (pile, card, state) => {
     if (!card) {
         return null;
     }
 
-    console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
+    //console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
 
     let moves = [];
-    this.createSingleMove(this.state.discard, "discard", pile, card, moves);
-    this.createSingleMove(this.state.stack1, "stack1", pile, card, moves);
-    this.createSingleMove(this.state.stack2, "stack2", pile, card, moves);
-    this.createSingleMove(this.state.stack3, "stack3", pile, card, moves);
-    this.createSingleMove(this.state.stack4, "stack4", pile, card, moves);
-    this.createMoves(this.state.pile1, "pile1", pile, card, moves);
-    this.createMoves(this.state.pile2, "pile2", pile, card, moves);
-    this.createMoves(this.state.pile3, "pile3", pile, card, moves);
-    this.createMoves(this.state.pile4, "pile4", pile, card, moves);
-    this.createMoves(this.state.pile5, "pile5", pile, card, moves);
-    this.createMoves(this.state.pile6, "pile6", pile, card, moves);
-    this.createMoves(this.state.pile7, "pile7", pile, card, moves);
+    createSingleMove(state.discard, "discard", pile, card, moves);
+    createSingleMove(state.stack1, "stack1", pile, card, moves);
+    createSingleMove(state.stack2, "stack2", pile, card, moves);
+    createSingleMove(state.stack3, "stack3", pile, card, moves);
+    createSingleMove(state.stack4, "stack4", pile, card, moves);
+    createMoves(state.pile1, "pile1", pile, card, moves);
+    createMoves(state.pile2, "pile2", pile, card, moves);
+    createMoves(state.pile3, "pile3", pile, card, moves);
+    createMoves(state.pile4, "pile4", pile, card, moves);
+    createMoves(state.pile5, "pile5", pile, card, moves);
+    createMoves(state.pile6, "pile6", pile, card, moves);
+    createMoves(state.pile7, "pile7", pile, card, moves);
 
     return moves;
 };
@@ -195,7 +208,7 @@ let getValidMoveToPile = card => {
     }
     let newValue = value > 10 || value === 1 ? createValue[value] : value;
 
-    console.log("CARD TO FIND: " + newSuit + " " + newValue);
+    //console.log("CARD TO FIND: " + newSuit + " " + newValue);
 
     return {
         suit: newSuit,
@@ -204,7 +217,7 @@ let getValidMoveToPile = card => {
 };
 
 let getValidMoveToStack = card => {
-    console.log(card);
+    //console.log(card);
     if (!card) {
         return {
             suit: ["clubs", "spades", "diamonds", "hearts"],
@@ -213,7 +226,7 @@ let getValidMoveToStack = card => {
     }
 
     if (card.value === "king") {
-        console.log("RETURN NULL");
+        //console.log("RETURN NULL");
         return null;
     }
 
@@ -224,8 +237,8 @@ let getValidMoveToStack = card => {
     }
     let value = isNaN(card.value) ? parseValue[card.value] + 1 : +card.value + 1;
 
-    console.log(card.value);
-    console.log(value);
+    //console.log(card.value);
+    //console.log(value);
 
     let createValue = {
         11: "jack",
@@ -234,7 +247,7 @@ let getValidMoveToStack = card => {
     }
     let newValue = value > 10 ? createValue[value] : value;
 
-    console.log("CARD TO FIND: " + card.suit + " " + newValue);
+    //console.log("CARD TO FIND: " + card.suit + " " + newValue);
 
     return {
         suit: card.suit,

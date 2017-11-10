@@ -91,6 +91,37 @@ module.exports = app => {
        }
     });
 
+    app.put('/v1/game/:id', (req, res) => {
+        if (!req.session.user) {
+            res.status(401).send({ error: 'unauthorized' });
+        } else if (!req.body || !req.body.cards || !req.body.src || !req.body.dst) {
+            res.status(404).send({ error: `no data: ${req.body}` });
+        } else {
+            app.models.Game.findById(req.params.id)
+                .then(
+                    game => {
+                        if (!game) {
+                            res.status(404).send({ error: `unknown game: ${req.params.id}` });
+                        // } else if (!req.session.user._id !== game.owner) {
+                        //     res.status(404).send({ error: `invalid user: ${req.session.user}` })
+                        } else {
+                            let ret = Solitare.validateMove(game.state[game.state.length - 1], req.body);
+                            if (ret.error) {
+                                console.log("INVALID MOVE");
+                                res.status(404).send({error: `invalid move: ${req.body.move}`});
+                            } else {
+                                console.log("GOOD MOVE");
+                                // res.status(200).send(game.state[game.state.length - 1]);
+                                res.status(200).send(ret);
+                            }
+                        }
+                    }, err => {
+                        console.log(`Game.get failure: ${err}`);
+                        res.status(404).send({ error: `unknown game: ${req.params.id}` });
+                    }
+                );
+        }
+    });
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing
     app.get('/v1/cards/shuffle', (req, res) => {
