@@ -276,6 +276,7 @@ class Game extends Component {
     }
 
     onClick(ev) {
+        console.log("\n");
         console.log("~~~~~~~");
         console.log("STATE.TARGET");
         console.log(this.state.target);
@@ -335,11 +336,34 @@ class Game extends Component {
     createMove(newLocation) {
         console.log(this.state.target);
         let cardsArr = [];
-        let curCard = {
-            suit: this.state.target.card.suit,
-            value: this.state.target.card.value
+        let found = false;
+        for (let curCard of this.state[this.state.target.pile]) {
+            if (!found && curCard.suit === this.state.target.card.suit
+                && curCard.value == this.state.target.card.value) {
+                found = true;
+                cardsArr.push({
+                    suit: curCard.suit,
+                    value: curCard.value
+                });
+            } else if (found) {
+                cardsArr.push({
+                    suit: curCard.suit,
+                    value: curCard.value
+                });
+            }
         }
-        cardsArr.push(curCard);
+
+        // console.log("TESTESTETSTESTESTTES");
+        // for (let c of cardsArr) {
+        //     console.log(c);
+        // }
+
+        // cardsArr = [];
+        // let curCard = {
+        //     suit: this.state.target.card.suit,
+        //     value: this.state.target.card.value
+        // }
+        // cardsArr.push(curCard);
 
         let move = {
             cards: cardsArr,

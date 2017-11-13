@@ -80,7 +80,7 @@ let filterForProfile = game => ({
     moves:      game.moves.length
 });
 
-
+// Returns all possible moves given the current game state.
 let validMoves = state => {
     let moves = [];
     addAllMovesForStack(moves, "stack1", state.stack1, state);
@@ -98,6 +98,7 @@ let validMoves = state => {
     return moves;
 };
 
+// Determines if requestedMove is a valid move.
 let validateMove = (state, requestedMove) => {
     console.log("ENTER validateMove");
 
@@ -106,11 +107,13 @@ let validateMove = (state, requestedMove) => {
     }
 
     const moves = validMoves(state);
+    console.log("~~~REQUESTED MOVE~~~");
+    console.log(requestedMove);
+    console.log("~~~ALL VALID MOVES~~~");
     for (let m of moves) {
         console.log(m);
     }
-    // console.log(moves[0]);
-    // console.log(requestedMove);
+
     if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
     } else {
@@ -129,6 +132,7 @@ let addAllMovesForStack = (moves, dst, dstArr, state) => {
     }
 };
 
+// Adds valid moves to pile from everywhere else. card is the valid card to be moved to pile.
 let findMoveForStack = (pile, card, state) => {
     if (!card) {
         return null;
@@ -149,6 +153,7 @@ let findMoveForStack = (pile, card, state) => {
     return moves;
 };
 
+// Finds a valid move to the stack. card is the top card.
 let getValidMoveToStack = card => {
     // If there is no card, only an ace can be moved to the stack.
     if (!card) {
@@ -267,6 +272,7 @@ let getValidMoveToPile = card => {
     };
 };
 
+// Creates a one card move.
 let createSingleMove = (srcArr, src, dst, card, moves) => {
     if (srcArr.length < 1) {
         return;
@@ -284,22 +290,36 @@ let createSingleMove = (srcArr, src, dst, card, moves) => {
     }
 };
 
+// Creates a multiple card move.
 let createMoves = (srcArr, src, dst, card, moves) => {
     if (srcArr.length < 1 || srcArr === dst) {
         return;
     }
 
+    let found = false;
+    let cardsArr = [];
     for (let curCard of srcArr) {
         if (curCard.up && curCard.value == card.value && card.suit.includes(curCard.suit)) {
-            moves.push({
-                cards: [{
-                    suit: curCard.suit, value: curCard.value
-                }],
-                src: src,
-                dst: dst
+            found = true;
+            cardsArr.push({
+                suit: curCard.suit,
+                value: curCard.value
             });
-            break;
+
+        } else if (found) {
+            cardsArr.push({
+                suit: curCard.suit,
+                value: curCard.value
+            });
         }
+    }
+
+    if (cardsArr.length > 0) {
+        moves.push({
+            cards: cardsArr,
+            src: src,
+            dst: dst
+        });
     }
 };
 

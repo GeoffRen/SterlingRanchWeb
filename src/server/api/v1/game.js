@@ -127,24 +127,27 @@ module.exports = app => {
         }
     });
 
+    // Updates the game state.
     let updateState = (game, move) => {
         console.log("ENTER updateState");
         let curSrc = game[game.length - 1][move.src];
         console.log(curSrc);
-        // curSrc = curSrc.filter(item =>
-        //     item.value !== move.cards[0].value && item.suit !== move.cards[0].suit);
-        curSrc.splice(curSrc.length - 1, 1);
+        let cardAmount = move.cards.length;
+        curSrc.splice(curSrc.length - cardAmount, cardAmount);
+
         if (curSrc.length > 0 && move.src !== "draw") {
             curSrc[curSrc.length - 1].up = true;
         }
 
         let curDst = game[game.length - 1][move.dst];
         // console.log(curDst);
-        curDst.push({
-            suit: move.cards[0].suit,
-            value: move.cards[0].value,
-            up: true
-        });
+        for (let card of move.cards) {
+            curDst.push({
+                suit: card.suit,
+                value: card.value,
+                up: true
+            });
+        }
     }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing

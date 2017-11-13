@@ -91,7 +91,7 @@ class User {
         this.data = data;
         // Go to user profile
         // router.push(`/profile/${data.username}`);
-        router.push("/game/5a091ccae4db4c77072e6f0b");
+        router.push("/game/5a0927e87cd4f68c3773723b");
     }
 
     logOut(router) {
