@@ -16,10 +16,8 @@ class Login extends Component {
     onSubmit(ev) {
         ev.preventDefault();
         const data = {
-            // username: document.getElementById('username').value,
-            // password: document.getElementById('password').value
-            username: "geoffren",
-            password: "Initiate12!"
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
         };
         $.ajax({
             url: "/v1/session",

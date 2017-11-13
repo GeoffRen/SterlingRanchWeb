@@ -102,8 +102,8 @@ module.exports = app => {
                     curGame => {
                         if (!curGame) {
                             res.status(404).send({ error: `unknown game: ${req.params.id}` });
-                        // } else if (!req.session.user._id !== curGame.owner) {
-                        //     res.status(404).send({ error: `invalid user: ${req.session.user}` })
+                        } else if (req.session.user._id !== curGame.owner) {
+                            res.status(404).send({ error: `invalid user: ${req.session.user}` })
                         } else {
                             let ret = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
                             if (ret.error) {

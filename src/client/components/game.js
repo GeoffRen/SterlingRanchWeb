@@ -15,6 +15,7 @@ class Game extends Component {
         this.state = {
             target: undefined,
             startDrag: { x: 0, y: 0 },
+            drawCount: 1,
             pile1: [],
             pile2: [],
             pile3: [],
@@ -247,6 +248,7 @@ class Game extends Component {
             url: `/v1/game/${this.props.match.params.id}`
         }).then(data => {
             this.setState({
+                drawCount: data.drawCount,
                 pile1: data.pile1,
                 pile2: data.pile2,
                 pile3: data.pile3,
@@ -353,18 +355,6 @@ class Game extends Component {
             }
         }
 
-        // console.log("TESTESTETSTESTESTTES");
-        // for (let c of cardsArr) {
-        //     console.log(c);
-        // }
-
-        // cardsArr = [];
-        // let curCard = {
-        //     suit: this.state.target.card.suit,
-        //     value: this.state.target.card.value
-        // }
-        // cardsArr.push(curCard);
-
         let move = {
             cards: cardsArr,
             src: this.state.target.pile,
@@ -414,7 +404,7 @@ class Game extends Component {
 
     getCardInfo(cardId) {
         for (let key in this.state) {
-            if (this.state.hasOwnProperty(key) && key !== "target" && key !== "startDrag") {
+            if (this.state.hasOwnProperty(key) && key !== "target" && key !== "startDrag" && key !== "drawCount") {
                 let found = false;
                 let card = null;
                 for (card of this.state[key]) {

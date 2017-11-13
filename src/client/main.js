@@ -90,8 +90,7 @@ class User {
         // Store locally
         this.data = data;
         // Go to user profile
-        // router.push(`/profile/${data.username}`);
-        router.push("/game/5a0927e87cd4f68c3773723b");
+        router.push(`/profile/${data.username}`);
     }
 
     logOut(router) {
