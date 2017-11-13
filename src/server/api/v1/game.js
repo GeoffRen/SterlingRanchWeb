@@ -99,20 +99,24 @@ module.exports = app => {
         } else {
             app.models.Game.findById(req.params.id)
                 .then(
-                    game => {
-                        if (!game) {
+                    curGame => {
+                        if (!curGame) {
                             res.status(404).send({ error: `unknown game: ${req.params.id}` });
-                        // } else if (!req.session.user._id !== game.owner) {
+                        // } else if (!req.session.user._id !== curGame.owner) {
                         //     res.status(404).send({ error: `invalid user: ${req.session.user}` })
                         } else {
-                            let ret = Solitare.validateMove(game.state[game.state.length - 1], req.body);
+                            let ret = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
                             if (ret.error) {
-                                console.log("INVALID MOVE");
                                 res.status(404).send({error: `invalid move: ${req.body.move}`});
                             } else {
-                                console.log("GOOD MOVE");
-                                // res.status(200).send(game.state[game.state.length - 1]);
-                                res.status(200).send(ret);
+                                updateState(curGame.state, req.body)
+                                curGame.save(err => {
+                                    if (err) {
+                                        res.status(400).send({ error: 'failure updating game' });
+                                    } else {
+                                        res.status(201).send(curGame.state[curGame.state.length - 1]);
+                                    }
+                                });
                             }
                         }
                     }, err => {
@@ -122,6 +126,26 @@ module.exports = app => {
                 );
         }
     });
+
+    let updateState = (game, move) => {
+        console.log("ENTER updateState");
+        let curSrc = game[game.length - 1][move.src];
+        console.log(curSrc);
+        // curSrc = curSrc.filter(item =>
+        //     item.value !== move.cards[0].value && item.suit !== move.cards[0].suit);
+        curSrc.splice(curSrc.length - 1, 1);
+        if (curSrc.length > 0 && move.src !== "draw") {
+            curSrc[curSrc.length - 1].up = true;
+        }
+
+        let curDst = game[game.length - 1][move.dst];
+        // console.log(curDst);
+        curDst.push({
+            suit: move.cards[0].suit,
+            value: move.cards[0].value,
+            up: true
+        });
+    }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing
     app.get('/v1/cards/shuffle', (req, res) => {

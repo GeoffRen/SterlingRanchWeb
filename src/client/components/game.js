@@ -287,7 +287,19 @@ class Game extends Component {
         let cardInfo = this.getCardInfo(clickTarget.id);
         console.log(cardInfo);
 
-        if (!this.state.target && cardInfo && cardInfo.up) {
+        // Click on the draw pile
+        if (cardInfo && cardInfo.pile === "draw") {
+            console.log("DRAW");
+            this.setState({ target: {
+                card: cardInfo.card,
+                pile: cardInfo.pile,
+                ref: clickTarget
+            }}, () =>
+                this.createMove("discard")
+            );
+
+        // Click on face up card without a target selected.
+        } else if (!this.state.target && cardInfo && cardInfo.up) {
             console.log("ORIGINAL CLICK");
             this.setState({ target: {
                 card: cardInfo.card,
@@ -297,25 +309,31 @@ class Game extends Component {
             clickTarget.classList.add("selected");
 
         } else if (this.state.target && cardInfo) {
+            // Click on a face up card with a target selected
             if (cardInfo.up) {
                 console.log("MOVE TO UP CARD");
                 this.createMove(cardInfo.pile);
+
+            // Click on a face down card with a target selected
             } else {
                 console.log("CLICK ON DOWN CARD");
                 this.removeHighlight();
             }
 
+            // Click on a location with a target selected
         } else if (this.state.target) {
             console.log("MOVE TO PILE");
             this.createMove(clickTarget.id);
         }
 
+        // Everything else
         else {
             console.log("NO ACTION");
         }
     }
 
     createMove(newLocation) {
+        console.log(this.state.target);
         let cardsArr = [];
         let curCard = {
             suit: this.state.target.card.suit,
@@ -339,9 +357,27 @@ class Game extends Component {
         }).then(data => {
             console.log("SUCCESSFUL MOVE");
             console.log(data);
+            this.removeHighlight();
+            this.setState({
+                pile1: data.pile1,
+                pile2: data.pile2,
+                pile3: data.pile3,
+                pile4: data.pile4,
+                pile5: data.pile5,
+                pile6: data.pile6,
+                pile7: data.pile7,
+                stack1: data.stack1,
+                stack2: data.stack2,
+                stack3: data.stack3,
+                stack4: data.stack4,
+                draw: data.draw,
+                discard: data.discard,
+                target: undefined
+            });
         }).fail(err => {
             console.log("ERROR");
             console.log(err.responseText);
+            this.removeHighlight();
         });
     }
 

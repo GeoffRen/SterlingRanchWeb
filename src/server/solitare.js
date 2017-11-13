@@ -99,10 +99,18 @@ let validMoves = state => {
 };
 
 let validateMove = (state, requestedMove) => {
+    console.log("ENTER validateMove");
+
+    if (requestedMove.src === "draw") {
+        return requestedMove;
+    }
+
     const moves = validMoves(state);
-    console.log(moves);
-    console.log(moves[0]);
-    console.log(requestedMove);
+    for (let m of moves) {
+        console.log(m);
+    }
+    // console.log(moves[0]);
+    // console.log(requestedMove);
     if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
     } else {
@@ -110,29 +118,16 @@ let validateMove = (state, requestedMove) => {
     }
 };
 
+// Finds all possible moves to dst
 let addAllMovesForStack = (moves, dst, dstArr, state) => {
+    console.log("ENTER addAllMovesForStack for " + dst);
     let newMoves = findMoveForStack(dst, getValidMoveToStack(dstArr[dstArr.length - 1]), state);
-    if (newMoves.length > 0) {
+    if (newMoves && newMoves.length > 0) {
         for (let move of newMoves) {
             moves.push(move);
         }
     }
 };
-
-let addAllMovesForPile = (moves, dst, dstArr, state) => {
-    let newMoves = findMoveForPile(dst, getValidMoveToPile(dstArr[dstArr.length - 1]), state);
-    if (newMoves.length > 0) {
-        console.log("CONCAT MOVE");
-        console.log(newMoves);
-        console.log(moves);
-        // moves.concat(newMoves);
-        for (let move of newMoves) {
-            moves.push(move);
-        }
-        console.log(moves);
-        console.log("DONE CONCAT");
-    }
-}
 
 let findMoveForStack = (pile, card, state) => {
     if (!card) {
@@ -154,12 +149,65 @@ let findMoveForStack = (pile, card, state) => {
     return moves;
 };
 
+let getValidMoveToStack = card => {
+    // If there is no card, only an ace can be moved to the stack.
+    if (!card) {
+        return {
+            suit: ["clubs", "spades", "diamonds", "hearts"],
+            value: "ace"
+        };
+    }
+
+    // If the stack's top card is a king, no move can be made to this stack.
+    if (card.value === "king") {
+        return null;
+    }
+
+    let parseValue = {
+        ace: 1,
+        jack: 11,
+        queen: 12,
+    }
+    let value = isNaN(card.value) ? parseValue[card.value] + 1 : +card.value + 1;
+
+    //console.log(card.value);
+    //console.log(value);
+
+    let createValue = {
+        11: "jack",
+        12: "queen",
+        13: "king"
+    }
+    let newValue = value > 10 ? createValue[value] : value;
+
+    //console.log("CARD TO FIND: " + card.suit + " " + newValue);
+
+    return {
+        suit: card.suit,
+        value: newValue
+    };
+};
+
+// Finds all possible moves to dst
+let addAllMovesForPile = (moves, dst, dstArr, state) => {
+    // console.log("ENTER addAllMovesForPile for " + dst);
+    let newMoves = findMoveForPile(dst, getValidMoveToPile(dstArr[dstArr.length - 1]), state);
+    // console.log(newMoves);
+
+    if (newMoves && newMoves.length > 0) {
+        for (let move of newMoves) {
+            moves.push(move);
+        }
+    }
+}
+
+// Adds valid moves to pile from everywhere else. card is the valid card to be moved to pile.
 let findMoveForPile = (pile, card, state) => {
     if (!card) {
         return null;
     }
 
-    //console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
+    // console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
 
     let moves = [];
     createSingleMove(state.discard, "discard", pile, card, moves);
@@ -178,7 +226,9 @@ let findMoveForPile = (pile, card, state) => {
     return moves;
 };
 
+// Finds a valid move to the pile. card is the top card.
 let getValidMoveToPile = card => {
+    // If there is no card, only a king can be moved to the pile.
     if (!card) {
         return {
             suit: ["clubs", "spades", "diamonds", "hearts"],
@@ -186,6 +236,7 @@ let getValidMoveToPile = card => {
         };
     }
 
+    // There is no possible move to the pile if the top card is an ace.
     if (card.value === "ace") {
         return null;
     }
@@ -216,52 +267,13 @@ let getValidMoveToPile = card => {
     };
 };
 
-let getValidMoveToStack = card => {
-    //console.log(card);
-    if (!card) {
-        return {
-            suit: ["clubs", "spades", "diamonds", "hearts"],
-            value: "ace"
-        };
-    }
-
-    if (card.value === "king") {
-        //console.log("RETURN NULL");
-        return null;
-    }
-
-    let parseValue = {
-        ace: 1,
-        jack: 11,
-        queen: 12,
-    }
-    let value = isNaN(card.value) ? parseValue[card.value] + 1 : +card.value + 1;
-
-    //console.log(card.value);
-    //console.log(value);
-
-    let createValue = {
-        11: "jack",
-        12: "queen",
-        13: "king"
-    }
-    let newValue = value > 10 ? createValue[value] : value;
-
-    //console.log("CARD TO FIND: " + card.suit + " " + newValue);
-
-    return {
-        suit: card.suit,
-        value: newValue
-    };
-};
-
 let createSingleMove = (srcArr, src, dst, card, moves) => {
     if (srcArr.length < 1) {
         return;
     }
 
     let curCard = srcArr[srcArr.length - 1]
-    if (curCard.value === card.value && card.suit.includes(curCard.suit)) {
+    if (curCard.value == card.value && card.suit.includes(curCard.suit)) {
         moves.push({
             cards: [{
                 suit: curCard.suit, value: curCard.value
@@ -278,7 +290,7 @@ let createMoves = (srcArr, src, dst, card, moves) => {
     }
 
     for (let curCard of srcArr) {
-        if (curCard.up && curCard.value === card.value && card.suit.includes(curCard.suit)) {
+        if (curCard.up && curCard.value == card.value && card.suit.includes(curCard.suit)) {
             moves.push({
                 cards: [{
                     suit: curCard.suit, value: curCard.value
