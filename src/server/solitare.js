@@ -100,20 +100,18 @@ let validMoves = state => {
 
 // Determines if requestedMove is a valid move.
 let validateMove = (state, requestedMove) => {
-    console.log("ENTER validateMove");
-
+    // A draw is always valid.
     if (requestedMove.src === "draw") {
         return requestedMove;
     }
 
-    const moves = validMoves(state);
-    console.log("~~~REQUESTED MOVE~~~");
-    console.log(requestedMove);
-    console.log("~~~ALL VALID MOVES~~~");
-    for (let m of moves) {
-        console.log(m);
+    // If requestedMove.dst is draw, then we want to put put the discard pile face down onto the draw pile.
+    if (requestedMove.dst === "draw") {
+        requestedMove.cards = requestedMove.cards.reverse();
+        return requestedMove;
     }
 
+    const moves = validMoves(state);
     if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
     } else {
@@ -123,7 +121,6 @@ let validateMove = (state, requestedMove) => {
 
 // Finds all possible moves to dst
 let addAllMovesForStack = (moves, dst, dstArr, state) => {
-    console.log("ENTER addAllMovesForStack for " + dst);
     let newMoves = findMoveForStack(dst, getValidMoveToStack(dstArr[dstArr.length - 1]), state);
     if (newMoves && newMoves.length > 0) {
         for (let move of newMoves) {
@@ -137,8 +134,6 @@ let findMoveForStack = (pile, card, state) => {
     if (!card) {
         return null;
     }
-
-    //console.log(`IN FINDMOVEFORSTACK: ${pile} ${card.suit} ${card.value}`);
 
     let moves = [];
     createSingleMove(state.discard, "discard", pile, card, moves);
@@ -175,17 +170,12 @@ let getValidMoveToStack = card => {
     }
     let value = isNaN(card.value) ? parseValue[card.value] + 1 : +card.value + 1;
 
-    //console.log(card.value);
-    //console.log(value);
-
     let createValue = {
         11: "jack",
         12: "queen",
         13: "king"
     }
     let newValue = value > 10 ? createValue[value] : value;
-
-    //console.log("CARD TO FIND: " + card.suit + " " + newValue);
 
     return {
         suit: card.suit,
@@ -195,10 +185,7 @@ let getValidMoveToStack = card => {
 
 // Finds all possible moves to dst
 let addAllMovesForPile = (moves, dst, dstArr, state) => {
-    // console.log("ENTER addAllMovesForPile for " + dst);
     let newMoves = findMoveForPile(dst, getValidMoveToPile(dstArr[dstArr.length - 1]), state);
-    // console.log(newMoves);
-
     if (newMoves && newMoves.length > 0) {
         for (let move of newMoves) {
             moves.push(move);
@@ -211,8 +198,6 @@ let findMoveForPile = (pile, card, state) => {
     if (!card) {
         return null;
     }
-
-    // console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
 
     let moves = [];
     createSingleMove(state.discard, "discard", pile, card, moves);
@@ -263,8 +248,6 @@ let getValidMoveToPile = card => {
         12: "queen",
     }
     let newValue = value > 10 || value === 1 ? createValue[value] : value;
-
-    //console.log("CARD TO FIND: " + newSuit + " " + newValue);
 
     return {
         suit: newSuit,

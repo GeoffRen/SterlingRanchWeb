@@ -105,11 +105,11 @@ module.exports = app => {
                         } else if (req.session.user._id !== curGame.owner) {
                             res.status(404).send({ error: `invalid user: ${req.session.user}` })
                         } else {
-                            let ret = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
-                            if (ret.error) {
+                            let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
+                            if (validGame.error) {
                                 res.status(404).send({error: `invalid move: ${req.body.move}`});
                             } else {
-                                updateState(curGame.state, req.body)
+                                updateState(curGame.state, validGame)
                                 curGame.save(err => {
                                     if (err) {
                                         res.status(400).send({ error: 'failure updating game' });
@@ -129,9 +129,7 @@ module.exports = app => {
 
     // Updates the game state.
     let updateState = (game, move) => {
-        console.log("ENTER updateState");
         let curSrc = game[game.length - 1][move.src];
-        console.log(curSrc);
         let cardAmount = move.cards.length;
         curSrc.splice(curSrc.length - cardAmount, cardAmount);
 
@@ -140,7 +138,6 @@ module.exports = app => {
         }
 
         let curDst = game[game.length - 1][move.dst];
-        // console.log(curDst);
         for (let card of move.cards) {
             curDst.push({
                 suit: card.suit,

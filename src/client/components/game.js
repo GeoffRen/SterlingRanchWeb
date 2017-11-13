@@ -37,210 +37,16 @@ class Game extends Component {
         this.removeHighlight = this.removeHighlight.bind(this);
         this.getCardInfo     = this.getCardInfo.bind(this);
 
-        // this.validMoves = this.validMoves.bind(this);
-        // this.getValidMoveToPile = this.getValidMoveToPile.bind(this);
-        // this.getValidMoveToStack = this.getValidMoveToStack.bind(this);
-        // this.findMoveForPile = this.findMoveForPile.bind(this);
-        // this.findMoveForStack = this.findMoveForStack.bind(this);
-        // this.createSingleMove = this.createSingleMove.bind(this);
-        // this.createMoves = this.createMoves.bind(this);
-        // this.addAllMovesForPile = this.addAllMovesForPile.bind(this);
-        // this.addAllMovesForStack = this.addAllMovesForStack.bind(this);
+        this.fullScreenStyle = {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            height: "100%",
+            width: "100%"
+        };
     }
-
-    // validMoves() {
-    //     // let v = this.state.stack1;
-    //     // console.log("TOP CARD: " + v[v.length - 1]);
-    //     // let test = this.findMoveForPile("pile3", this.getValidMoveToPile(v[v.length - 1]));
-    //     // let test = this.findMoveForPile("pile1", this.getValidMoveToPile(v[v.length - 1]));
-    //     // let test = this.findMoveForStack("pile3", this.getValidMoveToStack(v[v.length - 1]));
-    //     // let test = this.findMoveForStack("stack1", this.getValidMoveToStack(v[v.length - 1]));
-    //
-    //     let moves = [];
-    //     this.addAllMovesForStack(moves, "stack1", this.state.stack1);
-    //     this.addAllMovesForStack(moves, "stack2", this.state.stack2);
-    //     this.addAllMovesForStack(moves, "stack3", this.state.stack3);
-    //     this.addAllMovesForStack(moves, "stack4", this.state.stack4);
-    //     this.addAllMovesForPile(moves, "pile1", this.state.pile1);
-    //     this.addAllMovesForPile(moves, "pile2", this.state.pile2);
-    //     this.addAllMovesForPile(moves, "pile3", this.state.pile3);
-    //     this.addAllMovesForPile(moves, "pile4", this.state.pile4);
-    //     this.addAllMovesForPile(moves, "pile5", this.state.pile5);
-    //     this.addAllMovesForPile(moves, "pile6", this.state.pile6);
-    //     this.addAllMovesForPile(moves, "pile7", this.state.pile7);
-    //     console.log(moves);
-    // };
-    //
-    // addAllMovesForStack(moves, dst, dstArr) {
-    //     let move = this.findMoveForStack(dst, this.getValidMoveToStack(dstArr[dstArr.length - 1]));
-    //     if (move.length > 0) {
-    //         moves.push(move);
-    //     }
-    // }
-    //
-    // addAllMovesForPile(moves, dst, dstArr) {
-    //     let move = this.findMoveForPile(dst, this.getValidMoveToPile(dstArr[dstArr.length - 1]));
-    //     if (move.length > 0) {
-    //         moves.push(move);
-    //     }
-    // }
-    //
-    // getValidMoveToPile(card) {
-    //     if (!card) {
-    //         return {
-    //             suit: ["clubs", "spades", "diamonds", "hearts"],
-    //             value: "king"
-    //         };
-    //     }
-    //
-    //     if (card.value === "ace") {
-    //         return null;
-    //     }
-    //
-    //     let black = ["clubs", "spades"];
-    //     let red = ["diamonds", "hearts"];
-    //     let newSuit = black.includes(card.suit) ? red : black;
-    //
-    //     let parseValue = {
-    //         jack: 11,
-    //         queen: 12,
-    //         king: 13
-    //     }
-    //     let value = isNaN(card.value) ? parseValue[card.value] - 1 : card.value - 1;
-    //
-    //     let createValue = {
-    //         1: "ace",
-    //         11: "jack",
-    //         12: "queen",
-    //     }
-    //     let newValue = value > 10 || value === 1 ? createValue[value] : value;
-    //
-    //     console.log("CARD TO FIND: " + newSuit + " " + newValue);
-    //
-    //     return {
-    //         suit: newSuit,
-    //         value: newValue
-    //     };
-    // }
-    //
-    // getValidMoveToStack(card) {
-    //     console.log(card);
-    //     if (!card) {
-    //         return {
-    //             suit: ["clubs", "spades", "diamonds", "hearts"],
-    //             value: "ace"
-    //         };
-    //     }
-    //
-    //     if (card.value === "king") {
-    //         console.log("RETURN NULL");
-    //         return null;
-    //     }
-    //
-    //     let parseValue = {
-    //         ace: 1,
-    //         jack: 11,
-    //         queen: 12,
-    //     }
-    //     let value = isNaN(card.value) ? parseValue[card.value] + 1 : +card.value + 1;
-    //
-    //     console.log(card.value);
-    //     console.log(value);
-    //
-    //     let createValue = {
-    //         11: "jack",
-    //         12: "queen",
-    //         13: "king"
-    //     }
-    //     let newValue = value > 10 ? createValue[value] : value;
-    //
-    //     console.log("CARD TO FIND: " + card.suit + " " + newValue);
-    //
-    //     return {
-    //         suit: card.suit,
-    //         value: newValue
-    //     };
-    // }
-    //
-    // findMoveForStack(pile, card) {
-    //     if (!card) {
-    //         return null;
-    //     }
-    //
-    //     console.log(`IN FINDMOVEFORSTACK: ${pile} ${card.suit} ${card.value}`);
-    //
-    //     let moves = [];
-    //     this.createSingleMove(this.state.discard, "discard", pile, card, moves);
-    //     this.createSingleMove(this.state.pile1, "pile1", pile, card, moves);
-    //     this.createSingleMove(this.state.pile2, "pile2", pile, card, moves);
-    //     this.createSingleMove(this.state.pile3, "pile3", pile, card, moves);
-    //     this.createSingleMove(this.state.pile4, "pile4", pile, card, moves);
-    //     this.createSingleMove(this.state.pile5, "pile5", pile, card, moves);
-    //     this.createSingleMove(this.state.pile6, "pile6", pile, card, moves);
-    //     this.createSingleMove(this.state.pile7, "pile7", pile, card, moves);
-    //
-    //     return moves;
-    // }
-    //
-    // findMoveForPile(pile, card) {
-    //     if (!card) {
-    //         return null;
-    //     }
-    //
-    //     console.log(`IN FINDMOVEFORPILE: ${pile} ${card.suit} ${card.value}`);
-    //
-    //     let moves = [];
-    //     this.createSingleMove(this.state.discard, "discard", pile, card, moves);
-    //     this.createSingleMove(this.state.stack1, "stack1", pile, card, moves);
-    //     this.createSingleMove(this.state.stack2, "stack2", pile, card, moves);
-    //     this.createSingleMove(this.state.stack3, "stack3", pile, card, moves);
-    //     this.createSingleMove(this.state.stack4, "stack4", pile, card, moves);
-    //     this.createMoves(this.state.pile1, "pile1", pile, card, moves);
-    //     this.createMoves(this.state.pile2, "pile2", pile, card, moves);
-    //     this.createMoves(this.state.pile3, "pile3", pile, card, moves);
-    //     this.createMoves(this.state.pile4, "pile4", pile, card, moves);
-    //     this.createMoves(this.state.pile5, "pile5", pile, card, moves);
-    //     this.createMoves(this.state.pile6, "pile6", pile, card, moves);
-    //     this.createMoves(this.state.pile7, "pile7", pile, card, moves);
-    //
-    //     return moves;
-    // }
-    //
-    // createSingleMove(srcArr, src, dst, card, moves) {
-    //     if (srcArr.length < 1) {
-    //         return;
-    //     }
-    //
-    //     let curCard = srcArr[srcArr.length - 1]
-    //     if (curCard.value === card.value && card.suit.includes(curCard.suit)) {
-    //         moves.push({
-    //             cards: [{
-    //                 suit: curCard.suit, value: curCard.value
-    //             }],
-    //             src: src,
-    //             dst: dst
-    //         });
-    //     }
-    // }
-    //
-    // createMoves(srcArr, src, dst, card, moves) {
-    //     if (srcArr.length < 1 || srcArr === dst) {
-    //         return;
-    //     }
-    //
-    //     for (let curCard of srcArr) {
-    //         if (curCard.up && curCard.value === card.value && card.suit.includes(curCard.suit)) {
-    //             moves.push({
-    //                 cards: [{
-    //                     suit: curCard.suit, value: curCard.value
-    //                 }],
-    //                 src: src,
-    //                 dst: dst
-    //             });
-    //             break;
-    //         }
-    //     }
-    // }
 
     componentDidMount() {
         document.addEventListener("keydown", this.escFunction, false);
@@ -266,8 +72,6 @@ class Game extends Component {
         }).fail(err => {
             // TODO: Should show a helpful error message that the game could not be found
             console.log(err);
-        }).then(() => {
-            console.log(this.state);
         });
     }
 
@@ -278,65 +82,74 @@ class Game extends Component {
     }
 
     onClick(ev) {
-        console.log("\n");
-        console.log("~~~~~~~");
-        console.log("STATE.TARGET");
-        console.log(this.state.target);
-
         let clickTarget = ev.target;
-        console.log(`CLICKTARGET ID: ${clickTarget.id}`);
-
-        console.log("CARDINFO");
         let cardInfo = this.getCardInfo(clickTarget.id);
-        console.log(cardInfo);
 
-        // Click on the draw pile
-        if (cardInfo && cardInfo.pile === "draw") {
-            console.log("DRAW");
-            this.setState({ target: {
-                card: cardInfo.card,
-                pile: cardInfo.pile,
-                ref: clickTarget
-            }}, () =>
-                this.createMove("discard")
+        // Click on a card in the discard that isn't the top during a three draw game.
+        let topDiscard = this.state.discard[this.state.discard.length - 1];
+        if (this.state.drawCount === 3 && cardInfo && cardInfo.pile === "discard"
+            && (cardInfo.card.value != topDiscard.value || cardInfo.card.suit != topDiscard.suit)) {
+            this.removeHighlight();
+
+            // Click on the draw pile
+        } else if (cardInfo && cardInfo.pile === "draw") {
+            let drawCard = cardInfo.card;
+            if (this.state.drawCount === 3) {
+                let drawLen = this.state.draw.length;
+                drawCard = drawLen > 3 ? this.state.draw[drawLen - 3] : this.state.draw[0];
+            }
+
+            this.removeHighlight();
+            this.setState({
+                    target: {
+                        card: drawCard,
+                        pile: cardInfo.pile,
+                        ref: clickTarget
+                    }
+                }, () =>
+                    this.createMove("discard")
+            );
+
+        // Click on the empty draw pile with cards in the discard pile
+        } else if (clickTarget.id === "draw" && this.state.draw.length === 0 && this.state.discard.length > 0) {
+            this.removeHighlight();
+            this.setState({
+                target: {
+                    card: this.state.discard[0],
+                    pile: "discard"
+                }
+            }, () =>
+                this.createMove("draw")
             );
 
         // Click on face up card without a target selected.
         } else if (!this.state.target && cardInfo && cardInfo.up) {
-            console.log("ORIGINAL CLICK");
-            this.setState({ target: {
-                card: cardInfo.card,
-                pile: cardInfo.pile,
-                ref: clickTarget
-            }});
+            this.setState({
+                target: {
+                    card: cardInfo.card,
+                    pile: cardInfo.pile,
+                    ref: clickTarget
+                }
+            });
             clickTarget.classList.add("selected");
 
         } else if (this.state.target && cardInfo) {
             // Click on a face up card with a target selected
             if (cardInfo.up) {
-                console.log("MOVE TO UP CARD");
                 this.createMove(cardInfo.pile);
 
             // Click on a face down card with a target selected
             } else {
-                console.log("CLICK ON DOWN CARD");
                 this.removeHighlight();
             }
 
             // Click on a location with a target selected
         } else if (this.state.target) {
-            console.log("MOVE TO PILE");
             this.createMove(clickTarget.id);
-        }
-
-        // Everything else
-        else {
-            console.log("NO ACTION");
         }
     }
 
     createMove(newLocation) {
-        console.log(this.state.target);
         let cardsArr = [];
         let found = false;
         for (let curCard of this.state[this.state.target.pile]) {
@@ -360,8 +173,6 @@ class Game extends Component {
             src: this.state.target.pile,
             dst: newLocation
         }
-
-        console.log("MOVE");
         console.log(move);
 
         $.ajax({
@@ -369,8 +180,6 @@ class Game extends Component {
             method: "put",
             data: move,
         }).then(data => {
-            console.log("SUCCESSFUL MOVE");
-            console.log(data);
             this.removeHighlight();
             this.setState({
                 pile1: data.pile1,
@@ -389,14 +198,12 @@ class Game extends Component {
                 target: undefined
             });
         }).fail(err => {
-            console.log("ERROR");
-            console.log(err.responseText);
             this.removeHighlight();
         });
     }
 
     removeHighlight() {
-        if(this.state.target) {
+        if(this.state.target && this.state.target.ref) {
             this.state.target.ref.classList.remove("selected");
             this.setState({ target: null });
         }
@@ -432,6 +239,7 @@ class Game extends Component {
 
     render() {
         return <div>
+            <div onClick={this.removeHighlight} style={this.fullScreenStyle} />
             <div className="card-row">
                 <Pile
                     pileName="stack1"
@@ -467,8 +275,9 @@ class Game extends Component {
                 <Pile
                     pileName="discard"
                     cards={this.state.discard}
-                    spacing={0}
+                    spacing={this.state.drawCount > 1 ? 10 : 0}
                     onClick={this.onClick}
+                    horizontal={this.state.drawCount > 1}
                 />
             </div>
             <div className="card-row">

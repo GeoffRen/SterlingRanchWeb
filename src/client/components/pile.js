@@ -21,9 +21,11 @@ export const Card = ({ card, top, left}) => {
 
 export class Pile extends Component {
     render() {
+        let discardSpacing = 0;
         const cards = this.props.cards.map((card, index) => {
+            let topDiscard = this.props.cards.length - 3;
             let top = this.props.horizontal ? 0 : index * this.props.spacing ;
-            let left = this.props.horizontal ? index * this.props.spacing : 0;
+            let left = this.props.horizontal && index >= topDiscard ? discardSpacing++ * this.props.spacing : 0;
             return <Card
                 key={index}
                 card={card}
