@@ -77,7 +77,7 @@ module.exports = app => {
                        if (!game) {
                            res.status(404).send({error: `unknown game: ${req.params.id}`});
                        } else {
-                           const state = game.state[0].toJSON();
+                           const state = game.state[game.state.length - 1].toJSON();
                            let results = _.pick(game.toJSON(), 'start', 'moves', 'winner', 'score', 'drawCount', 'color', 'active');
                            results.start = Date.parse(results.start);
                            results.cards_remaining = 52 - (state.stack1.length + state.stack2.length + state.stack3.length + state.stack4.length);
@@ -110,7 +110,7 @@ module.exports = app => {
                             if (validGame.error) {
                                 res.status(404).send({error: `invalid move: ${req.body.move}`});
                             } else {
-                                updateState(curGame.state, validGame)
+                                updateState(curGame, validGame, req.session.user.username)
                                 curGame.save(err => {
                                     if (err) {
                                         res.status(400).send({ error: 'failure updating game' });
@@ -128,8 +128,9 @@ module.exports = app => {
     });
 
     // Updates the game state.
-    let updateState = (game, move) => {
-        let curSrc = game[game.length - 1][move.src];
+    let updateState = (game, move, user) => {
+        let newState = JSON.parse(JSON.stringify(game.state[game.state.length - 1]));
+        let curSrc = newState[move.src];
         let cardAmount = move.cards.length;
         curSrc.splice(curSrc.length - cardAmount, cardAmount);
 
@@ -137,7 +138,7 @@ module.exports = app => {
             curSrc[curSrc.length - 1].up = true;
         }
 
-        let curDst = game[game.length - 1][move.dst];
+        let curDst = newState[move.dst];
         for (let card of move.cards) {
             curDst.push({
                 suit: card.suit,
@@ -145,6 +146,27 @@ module.exports = app => {
                 up: true
             });
         }
+
+        let newMove = {
+            move: move,
+            date: Date.now(),
+            player: user
+        }
+
+        game.state.push(newState);
+        console.log(newMove);
+        console.log("~~~");
+        game.moves.push(newMove);
+        // console.log(newMove);
+        // console.log(Date.now());
+        // console.log(user);
+        // console.log(game.moves);
+        console.log(game.moves[game.moves.length - 1]);
+        console.log("~~~");
+        console.log(game.moves[game.moves.length - 1].move);
+        console.log("~~~");
+        console.log(move);
+        console.log("~~~");
     }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing

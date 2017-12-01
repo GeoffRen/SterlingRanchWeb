@@ -10,7 +10,7 @@ let mongoose            = require('mongoose'),
 let CardState = new Schema({
     suit:       { type: String, required: true, enum: ['hearts', 'spades', 'diamonds', 'clubs'] },
     value:      { type: String, required: true, enum: ['ace', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king'] },
-    up:         { type: Boolean, required: true, default: false }
+    up:         { type: Boolean, required: true, default: true }
 }, { _id : false });
 
 /* Schema for overall hearts game state */
@@ -32,9 +32,13 @@ let KlondikeGameState = new Schema({
 
 /* Schema for an individual move of Klondike */
 let KlondikeMove = new Schema({
-    'cards':    { type: [CardState] },
-    'src':      { type: String },
-    'dst':      { type: String }
+    'move': {
+        'cards': {type: [CardState]},
+        'src': {type: String},
+        'dst': {type: String}
+    },
+    'date': {type: String},
+    'player': {type: String}
 }, { _id : false });
 
 /* Schema for overall game - not completely Klondike specific */

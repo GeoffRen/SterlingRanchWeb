@@ -6,7 +6,17 @@ let path            = require('path'),
     bodyParser      = require('body-parser'),
     logger          = require('morgan'),
     session         = require('express-session'),
-    mongoose        = require('mongoose');
+    mongoose        = require('mongoose'),
+    redis           = require('redis'),
+    RedisStore      = require('connect-redis')(session);
+
+let client = redis.createClient('32769', '192.168.99.100');
+client.on('ready', () => {
+    console.log('\tRedis Connected.');
+}).on('error', (err) => {
+    console.log('Not able to connect to Redis.');
+    process.exit(-1);
+});
 
 mongoose.Promise = global.Promise;
 let port = process.env.PORT ? process.env.PORT : 8080;
@@ -21,8 +31,13 @@ if (env !== 'test') app.use(logger('dev'));
 app.engine('pug', require('pug').__express);
 app.set('views', __dirname);
 // Setup pipeline session support
+const redisOptions = {
+    host: '192.168.99.100',
+    port: '32769'
+};
 app.use(session({
     name: 'session',
+    store: new RedisStore(redisOptions),
     secret: 'ohhellyes',
     resave: false,
     saveUninitialized: true,

@@ -15,6 +15,7 @@ import Profile                  from './components/profile';
 import Start                    from './components/start';
 import Results                  from './components/results';
 import Game                     from './components/game';
+import Edit                     from './components/edit';
 
 // Bring app CSS into the picture
 require('./app.css');
@@ -46,6 +47,8 @@ class MyApp extends Component {
                         <Register/>;
                 }}/>
                 <Route path="/logout" render={props => <Logout user={this.user}/>}/>
+                {/*<Route path="/profile/:username/edit" render={props => <Edit user={this.user}/>}/>*/}
+                <Route path="/edit/:username" render={props => <Edit user={this.user}/>}/>
                 <Route path="/profile/:username" render={props => <Profile user={this.user}/>}/>
                 <Route path="/start" render={() => {
                     return this.user.loggedIn() ?

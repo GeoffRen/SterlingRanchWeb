@@ -7,13 +7,22 @@ import { withRouter, Link }         from 'react-router-dom';
 /*************************************************************************/
 
 const Move = ({ move, index }) => {
+    // console.log("~~~");
+    // console.log(move);
+    // console.log("~~~");
     const duration = Date.now() - move.date;
     return <tr>
         <th>{move.id ? move.id : index + 1}</th>
         <th>{duration} seconds</th>
         <th><Link to={`/profile/${move.player}`}>{move.player}</Link></th>
-        <th>{move.move}</th>
+        {/*<th>{`${move.move.cards} from ${move.move.src} to ${move.move.dst}`}</th>*/}
+        <MoveDetails move={move.move} />
     </tr>
+};
+
+const MoveDetails = move => {
+    console.log(move);
+    return <th>`{move.move.cards} from {move.move.src} to {move.move.dst}`</th>;
 };
 
 class Results extends Component {
@@ -27,16 +36,22 @@ class Results extends Component {
     }
 
     componentDidMount() {
+        console.log("MOUNTING");
         $.ajax({ url: `/v1/game/${this.props.match.params.id}`})
             .then(data => {
+                console.log("DATA IS:");
+                console.log(data);
                 this.setState({ game: data });
             }).fail(err => {
+                console.log("ERROR: " + err);
                 let errorEl = document.getElementById('errorMsg');
                 errorEl.innerHTML = `Error: ${err.responseJSON.error}`;
             });
     }
 
     render() {
+        console.log("RENDERING");
+        console.log(this.state.game.moves);
         let moves = this.state.game.moves.map((move, index) => (
             <Move key={index} move={move} index={index}/>
         ));
