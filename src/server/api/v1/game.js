@@ -103,6 +103,7 @@ module.exports = app => {
                         if (!curGame) {
                             res.status(404).send({ error: `unknown game: ${req.params.id}` });
                         } else if (req.session.user._id !== curGame.owner) {
+                            console.log("INVALID USER");
                             res.status(404).send({ error: `invalid user: ${req.session.user}` })
                         } else {
                             let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
@@ -120,7 +121,6 @@ module.exports = app => {
                             }
                         }
                     }, err => {
-                        console.log(`Game.get failure: ${err}`);
                         res.status(404).send({ error: `unknown game: ${req.params.id}` });
                     }
                 );
