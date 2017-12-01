@@ -158,6 +158,7 @@ module.exports = (app) => {
                     console.log(`User.update validation failure: ${message}`);
                     res.status(400).send({error: message});
                 } else {
+                    Object.keys(data).forEach(key => data[key] === '' && delete data[key]);
                     const query = { username: req.session.user.username };
                     app.models.User.findOneAndUpdate(query, {$set: data}, {new: true})
                         .then(
