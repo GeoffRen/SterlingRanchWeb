@@ -71,6 +71,9 @@ module.exports = app => {
        if (!req.session.user) {
            res.status(401).send({ error: 'unauthorized' });
        } else {
+           console.log(req.body);
+           console.log(req.body.test);
+           console.log(req.body.test2);
            app.models.Game.findById(req.params.id)
                .then(
                    game => {

@@ -16,6 +16,7 @@ import Start                    from './components/start';
 import Results                  from './components/results';
 import Game                     from './components/game';
 import Edit                     from './components/edit';
+import ResultGame               from './components/resultGame';
 
 // Bring app CSS into the picture
 require('./app.css');
@@ -47,9 +48,8 @@ class MyApp extends Component {
                         <Register/>;
                 }}/>
                 <Route path="/logout" render={props => <Logout user={this.user}/>}/>
-                {/*<Route path="/profile/:username/edit" render={props => <Edit user={this.user}/>}/>*/}
-                <Route path="/edit/:username" render={props => <Edit user={this.user}/>}/>
-                <Route path="/profile/:username" render={props => <Profile user={this.user}/>}/>
+                <Route exact path="/profile/:username" render={props => <Profile user={this.user}/>}/>
+                <Route path="/profile/:username/edit" render={props => <Edit user={this.user}/>}/>
                 <Route path="/start" render={() => {
                     return this.user.loggedIn() ?
                         <Start/> :
@@ -60,7 +60,8 @@ class MyApp extends Component {
                         <Game user={this.user}/> :
                         <Redirect to={'/login'}/>;
                 }}/>
-                <Route path="/results/:id" render={props => <Results user={this.user}/>}/>
+                <Route exact path="/results/:id" render={props => <Results user={this.user}/>}/>
+                <Route exact path="/results/:id/:moveid" render={props => <ResultGame user={this.user}/>}/>
             </div>
         </BrowserRouter>;
     }

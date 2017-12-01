@@ -66,8 +66,7 @@ class Profile extends Component {
             </div>
             <div className="col-xs-2">
                 <h4>Player Profile</h4>
-                {/*{ isUser ? <Link to={`/profile/${this.props.match.params.username}/edit`}>Edit Profile</Link> : undefined }*/}
-                { isUser ? <Link to={`/edit/${this.props.match.params.username}`}>Edit Profile</Link> : undefined }
+                { isUser ? <Link to={`/profile/${this.props.match.params.username}/edit`}>Edit Profile</Link> : undefined }
             </div>
             <div className="col-xs-8">
                 <div className="row">

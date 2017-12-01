@@ -6,23 +6,16 @@ import { withRouter, Link }         from 'react-router-dom';
 
 /*************************************************************************/
 
-const Move = ({ move, index }) => {
-    // console.log("~~~");
-    // console.log(move);
-    // console.log("~~~");
+const Move = ({ move, index, gameId }) => {
     const duration = Date.now() - move.date;
+    let cards = move.move.cards.map(card => ` ${card.value} of ${card.suit}`);
+    let moveId = move.id ? move.id : index + 1;
     return <tr>
-        <th>{move.id ? move.id : index + 1}</th>
+        <th>{moveId}</th>
         <th>{duration} seconds</th>
         <th><Link to={`/profile/${move.player}`}>{move.player}</Link></th>
-        {/*<th>{`${move.move.cards} from ${move.move.src} to ${move.move.dst}`}</th>*/}
-        <MoveDetails move={move.move} />
+        <th><Link to={`/results/${gameId}/${moveId}`}>{`${cards} from ${move.move.src} to ${move.move.dst}`}</Link></th>
     </tr>
-};
-
-const MoveDetails = move => {
-    console.log(move);
-    return <th>`{move.move.cards} from {move.move.src} to {move.move.dst}`</th>;
 };
 
 class Results extends Component {
@@ -36,11 +29,8 @@ class Results extends Component {
     }
 
     componentDidMount() {
-        console.log("MOUNTING");
         $.ajax({ url: `/v1/game/${this.props.match.params.id}`})
             .then(data => {
-                console.log("DATA IS:");
-                console.log(data);
                 this.setState({ game: data });
             }).fail(err => {
                 console.log("ERROR: " + err);
@@ -50,10 +40,8 @@ class Results extends Component {
     }
 
     render() {
-        console.log("RENDERING");
-        console.log(this.state.game.moves);
         let moves = this.state.game.moves.map((move, index) => (
-            <Move key={index} move={move} index={index}/>
+            <Move key={index} move={move} index={index} gameId={this.props.match.params.id}/>
         ));
         const duration = this.state.game.start ? (Date.now() - this.state.game.start) / 1000 : '--';
         return <div className="row">
