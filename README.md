@@ -1,111 +1,52 @@
 # CS 4288: Web-based System Architecture 
-## Programming Assignment 5
+## Programming Assignment 6
 
 ## Overview
 
-For this assignment you are going to add gameplay logic and actions to your application.
+This is it!  In this assignment you will get to functional web-based Klondike Solitaire application.  Let's get started...
 
+On the Derby Day your application will be evaluated by a number of other students in class.  Your application will earn points based on its capabilities (see below).
 
-## Let the User Move a Card (20pts + 2x5pt bonuses)
+* 30% of your grade will be awarded based on a manual code review by the instructor
+* 70+% of your grade will be based on the Derby Day peer review  
+* It is possible to earn more than 100% of the points
+* You are free to change, add or remove any code within your application.  All reused code (not recorded into package.json) must be attributed
 
-In an earlier assignment you enabled users to move a card, but there was no game structure at that point.  Now you must allow the user to play the game by moving one or more cards:
- 
- * From one of the seven piles to another of the seven piles (one or more cards)
- * From one of the seven piles to one of the four stacks (one card)
- * From one of the four stacks to one of the seven piles (one card)
- * From the discard pile to one of the seven piles (one card)
- * From the discard pile to one of the four stacks (one card)
- * From the draw pile to the discard pile (1 or 3 cards)
- 
-The simplest way of approaching this is to maintain some state in the client.  The user clicks some card once to select it (and the cards below it in a pile) and then clicks another card to identify where the card is to be moved.  The user should not be able to click a card that is face-down, except in the draw pile.  The draw pile also is different in that a single click on the draw pile is a request to draw cards.  No second click is necessary.  If in doubt, follow the rules of the game from the Wiki page.
- 
-We can capture the requested move in JSON as follows:
+### Here are the places to earn (or lose) points:
 
-```{ cards: [{"suit": "clubs", "value": 7}, ...], src: "pile1", dst: "stack2" }```
+1. (30 points - mandatory) Instructor code review.  Is it clean, well-structured, modular code.
 
-Print out this structure for the requested move to get your points.  We are going to send this to the server shortly.
+1. (20 points - mandatory) You need to deploy.  It must be publicly available on the general internet (not just on Vandy campus).  The IP address must not change for the 3 days prior to the Derby and during the entire Derby Day.  This means AWS is an excellent option, but not the only one.
 
-If the user clicks on the background (i.e. not on any card), any state relating to the move should be rest.
+1. (10 points) Enable modification of a user's profile.  Must be saved back to the DB and viewable immediately by anyone else the going to the user's profile page and within the user's own header component.
 
-***5 BONUS pts***: In addition to the two-click method, allow the user to drag-and-drop card(s) from the source to the destination. 
+1. (10 points) Fully working "results" page.  Must display information for every move.
 
-***5 BONUS pts***: On the first click visually highlight the card(s) that are being selected.  Once one or more cards have been selected pressing the 'ESC' key or clicking on a face-down card will deselect the cards, removing the highlighting.
+1. (30 points) If results page is fully working (see above), additional points can be earned if each move is click-able and renders the state of the game after the completion of the clicked move.  Game does not need to be playable from that rendering.
 
+1. (10 points) Employ HTTPS with a CA issued certificate.  Must not pop any warnings or errors on users' Chrome browser.
 
-## Validate Moves (50pts)
+1. (40 points) Register and log in via Github.  Offer users the ability register and login using the Github OAuth mechanism discussed in class.  You must never directly ask the user for their username, password, or any other information.  It must all be pulled from Github.
 
-Implement a server-side module that exports one function.  Here is the starting point of what I am looking for:
+1. (40 points) Autocomplete button.  Will play all valid moves from the piles to the stacks.  Must send (and validate) each move to the server.  Should be clickable at any time as long as there are valid moves.
 
-```
-let validMoves = function(state) {
-    let results = [];
-    ... 
-    return results;
-};
-```
+1. (10 points) Recognize end of game, i.e. that there are no moves from piles to the stacks and that there are no useable moves from the discard pile to the stacks.  This recognition may miss rearrangements of the piles that would result in new moves becoming available.  So, if end-of-game is recognized, prompt user if they want to end game.
 
-It takes in a "state" object as described in Assignment 3. It must output a list of all valid moves, each in the format specified above.  _Hint_: for now you only need to consider the face-up cards in the piles and the top card in each of the stacks and discard.  There actually aren't that many combinations!  This function has been mocked up for you in _src/server/solitare.js_.
+1. (10 points) Infinite undo/redo.  Two UI buttons that let the user undo all moves back to the start of the game.  This will require new REST API endpoints to properly handle game state.  The redo stack should always be cleared if the user plays a new move.
 
-A second function, _validateMove_ must be developed:
-  
-```
-let validateMove = function(state, requestedMove) {
-    ...
-    return error or new state
-};
-```  
-It takes the current game state and the move being requested by the user and validates it against the list of valid moves for the state.  This will be used in the functionality described below.  This function has also been mocked up in _src/server/solitare.js_.
+1. (Automatic A For Person in Class) Full implement multiplayer Spades.  You crazy.
 
+1. (-10 points) Game not playable.  You had to implement all of the gameplay mechanics for Assignment 5, so this should be solid.
 
-## Send the Move Request (30pts)
+1. (-10 points) Console is spewing any errors or warnings.  I like it clean people!
 
-Now that our clients are generating move JSONs, and we have some means of knowing if they are valid or not, we need to bring it all together.
+### Super Bonus Points
 
-* After the user has clicked enough to generate the move JSON, execute an AJAX PUT to /v1/game/:gameID with the JSON data for the move
+* 10 points - Awarded to the one most attractive application as voted on by the other students.  A tie will split the points.
 
-* The server-side must have a route handler that receives this request.  It must validate that the user is logged in and is the owner of the game.  Make sure to put this route handler in the right place
+* 10 points - Awarded to the one student with the smallest client JS bundle (```/public/main.js```).  A tie will split the points
 
-* Finally, we have to make sure the move is valid.  So call _validateMove_ with game's state info and the requested move.  Now all you need to do is check the requested move against the list of valid moves
-
-* If the requested move is not valid, send an appropriate error back to the client
-
-* If the move is valid, update the game's state, push the new state into the state array, save the document to the DB and send success, and the new state, back to the client
-
-* If the client receives an error, restore the visual state to match the valid prior state
-
-* If the client receives a success, update the visual state to match the send new state
-
-
-## Grading Criteria:
-
-Point totals for each criteria are listed above.  Meet the description above and you get all of the points.  As functionality isn't working, visual styling is not as desired, or things are simply missing, points will be deducted.
 
 ## Submission:
 
-Ensure your files are in a clean and organized folder hierarchy.  Make sure your package.json is complete and up-to-date.  Commit all necessary files (not node_modules) to your GitHub repository.  Grading will follow the same script as last assignment:
-
-* Clone student's repo
-* Run ```npm install``` and all dependencies are installed
-* Run ```npm build``` and the full client is run through webpack
-* Run ```npm start``` and the web app is running
-* Navigate to [http://localhost:8080](http://localhost:8080) and the grader is on the landing page
-
-Your repo must be compliant with these steps.  It is easy to practice this on your local machine to ensure you have everything in the right place.
-
-## General Server-Side Requirements
- 
- * All data must be stored into the MongoDB
- 
- * All server-side routines interacting with the DB must have good error management and reporting
- 
- * All data being stored into the databse must be validated and cleansed of any possible script injections
-  
- 
- ## Testing Code - Useful, but different
- 
- * Travis-CI is not required for this assignment, but I have provided some testing code to help in your development.
- * To use the testing code:
-     * Start your server
-     * Make sure the mongoDB connection URL in ***test/api/data.json*** is correct
-     * Run ```npm test``` from your command line
-     * 28 different tests are run against the Session and User APIs.  Sadly, no tests for Game have been developed yet
+You must still commit your code to your repo by the start of class on Derby Day.  Failure to do so will result in the loss of the 30 points from code review.  Failure to publicly host the application during the Derby will result in the loss of 70+% of your points.  You have to make this happen.
