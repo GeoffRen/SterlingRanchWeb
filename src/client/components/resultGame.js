@@ -43,15 +43,9 @@ class ResultGame extends Component {
     }
 
     componentDidMount() {
-
-        console.log(this.props.match.params.moveid);
-        const data = {
-            test: "TEST",
-            test2: "TEST2"
-        };
         $.ajax({
             url: `/v1/game/${this.props.match.params.id}`,
-            data: data
+            data: {moveid: this.props.match.params.moveid}
         }).then(data => {
             this.setState({
                 drawCount: data.drawCount,

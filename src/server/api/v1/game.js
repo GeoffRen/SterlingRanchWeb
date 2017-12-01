@@ -71,16 +71,14 @@ module.exports = app => {
        if (!req.session.user) {
            res.status(401).send({ error: 'unauthorized' });
        } else {
-           console.log(req.body);
-           console.log(req.body.test);
-           console.log(req.body.test2);
            app.models.Game.findById(req.params.id)
                .then(
                    game => {
                        if (!game) {
                            res.status(404).send({error: `unknown game: ${req.params.id}`});
                        } else {
-                           const state = game.state[game.state.length - 1].toJSON();
+                           let gameIdx = req.query.moveid ? req.query.moveid : game.state.length - 1;
+                           const state = game.state[gameIdx].toJSON();
                            let results = _.pick(game.toJSON(), 'start', 'moves', 'winner', 'score', 'drawCount', 'color', 'active');
                            results.start = Date.parse(results.start);
                            results.cards_remaining = 52 - (state.stack1.length + state.stack2.length + state.stack3.length + state.stack4.length);
