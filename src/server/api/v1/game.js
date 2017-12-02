@@ -23,7 +23,6 @@ module.exports = app => {
             Joi.validate(req.body, schema, {stripUnknown: true}, (err, data) => {
                 if (err) {
                     const message = err.details[0].message;
-                    console.log(`Game.create validation failure: ${message}`);
                     res.status(400).send({error: message});
                 } else {
                     // Set up the new game
@@ -48,7 +47,6 @@ module.exports = app => {
                     let game = new app.models.Game(newGame);
                     game.save(err => {
                         if (err) {
-                            console.log(`Game.create save failure: ${err}`);
                             res.status(400).send({ error: 'failure creating game' });
                             // TODO: Much more error management needs to happen here
                         } else {
@@ -85,7 +83,6 @@ module.exports = app => {
                            res.status(200).send(_.extend(results, state));
                        }
                    }, err => {
-                       console.log(`Game.get failure: ${err}`);
                        res.status(404).send({error: `unknown game: ${req.params.id}`});
                    }
                );
@@ -104,7 +101,6 @@ module.exports = app => {
                         if (!curGame) {
                             res.status(404).send({ error: `unknown game: ${req.params.id}` });
                         } else if (req.session.user._id !== curGame.owner) {
-                            console.log("INVALID USER");
                             res.status(404).send({ error: `invalid user: ${req.session.user}` })
                         } else {
                             let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
@@ -140,11 +136,12 @@ module.exports = app => {
         }
 
         let curDst = newState[move.dst];
+        let up = move.dst !== "draw";
         for (let card of move.cards) {
             curDst.push({
                 suit: card.suit,
                 value: card.value,
-                up: true
+                up: up
             });
         }
 
@@ -152,22 +149,10 @@ module.exports = app => {
             move: move,
             date: Date.now(),
             player: user
-        }
+        };
 
         game.state.push(newState);
-        console.log(newMove);
-        console.log("~~~");
         game.moves.push(newMove);
-        // console.log(newMove);
-        // console.log(Date.now());
-        // console.log(user);
-        // console.log(game.moves);
-        console.log(game.moves[game.moves.length - 1]);
-        console.log("~~~");
-        console.log(game.moves[game.moves.length - 1].move);
-        console.log("~~~");
-        console.log(move);
-        console.log("~~~");
     }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing

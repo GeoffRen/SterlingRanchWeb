@@ -64,7 +64,6 @@ let Game = new Schema({
 });
 
 Game.pre('validate', function(next) {
-    this.start = Date.now();
     next();
 });
 

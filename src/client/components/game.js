@@ -118,9 +118,10 @@ class Game extends Component {
                     card: this.state.discard[0],
                     pile: "discard"
                 }
-            }, () =>
-                this.createMove("draw")
-            );
+            }, () => {
+                this.createMove("draw");
+                console.log(this.state.draw);
+            });
 
         // Click on face up card without a target selected.
         } else if (!this.state.target && cardInfo && cardInfo.up) {

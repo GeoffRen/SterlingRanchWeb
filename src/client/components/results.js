@@ -6,8 +6,8 @@ import { withRouter, Link }         from 'react-router-dom';
 
 /*************************************************************************/
 
-const Move = ({ move, index, gameId }) => {
-    const duration = Date.now() - move.date;
+const Move = ({ move, prevTime, index, gameId }) => {
+    const duration = (move.date - prevTime) / 1000;
     let cards = move.move.cards.map(card => ` ${card.value} of ${card.suit}`);
     let moveId = move.id ? move.id : index + 1;
     return <tr>
@@ -41,7 +41,11 @@ class Results extends Component {
 
     render() {
         let moves = this.state.game.moves.map((move, index) => (
-            <Move key={index} move={move} index={index} gameId={this.props.match.params.id}/>
+            <Move key={index}
+                  move={move}
+                  prevTime={index === 0 ? this.state.game.start : this.state.game.moves[index - 1].date}
+                  index={index}
+                  gameId={this.props.match.params.id}/>
         ));
         const duration = this.state.game.start ? (Date.now() - this.state.game.start) / 1000 : '--';
         return <div className="row">
