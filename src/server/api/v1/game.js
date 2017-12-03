@@ -90,43 +90,105 @@ module.exports = app => {
     });
 
     app.put('/v1/game/:id', (req, res) => {
+        console.log("PUT");
         if (!req.session.user) {
             res.status(401).send({ error: 'unauthorized' });
-        } else if (!req.body || !req.body.cards || !req.body.src || !req.body.dst) {
+        } else if (!req.body || !req.body.move || !req.body.state) {
             res.status(404).send({ error: `no data: ${req.body}` });
+        // } else if (req.session.user._id !== curGame.owner) {
+        //     res.status(404).send({ error: `invalid user: ${req.session.user}` })
         } else {
-            app.models.Game.findById(req.params.id)
-                .then(
-                    curGame => {
-                        if (!curGame) {
-                            res.status(404).send({ error: `unknown game: ${req.params.id}` });
-                        } else if (req.session.user._id !== curGame.owner) {
-                            res.status(404).send({ error: `invalid user: ${req.session.user}` })
-                        } else {
-                            let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
-                            if (validGame.error) {
-                                res.status(404).send({error: `invalid move: ${req.body}`});
-                            } else {
-                                updateState(curGame, validGame, req.session.user.username)
-                                curGame.save(err => {
-                                    if (err) {
-                                        res.status(400).send({ error: 'failure updating game' });
-                                    } else {
-                                        res.status(201).send(curGame.state[curGame.state.length - 1]);
-                                    }
-                                });
-                            }
-                        }
-                    }, err => {
-                        res.status(404).send({ error: `unknown game: ${req.params.id}` });
+
+            let state = req.body.state;
+            // jQuery automatically prunes empty values which breaks Solitare.validateMove.
+            let piles = ["stack1", "stack2", "stack3", "stack4", "pile1", "pile2", "pile3", "pile4","pile5", "pile6", "pile7", "discard", "draw"];
+            for (let pile of piles) {
+                if (!state[pile]) {
+                    state[pile] = [];
+                }
+            }
+
+            let start = Date.now();
+            let move = Solitare.validateMove(state, req.body.move);
+            console.log("VALIDATE TOOK " + (Date.now() - start));
+
+            if (move.error) {
+                res.status(404).send({error: `invalid move: ${req.body.move}`});
+            } else {
+
+                start = Date.now();
+                let updates = updateState(state, move, req.session.user.username)
+                console.log("Update TOOK " + (Date.now() - start));
+
+                start = Date.now();
+                app.models.Game.findByIdAndUpdate(req.params.id, { $push: updates }, { new: true } , (err, newState) => {
+                    console.log("SAVE TOOK " + (Date.now() - start));
+
+                    if (err) {
+                        res.status(400).send({ error: 'failure updating game' });
+                    } else {
+
+                        start = Date.now();
+                        res.status(201).send(newState.state[newState.state.length - 1]);
+                        console.log("SEND TOOK " + (Date.now() - start));
                     }
-                );
+                });
+            }
         }
     });
 
+    // app.put('/v1/game/:id', (req, res) => {
+    //     if (!req.session.user) {
+    //         res.status(401).send({ error: 'unauthorized' });
+    //     } else if (!req.body || !req.body.cards || !req.body.src || !req.body.dst) {
+    //         res.status(404).send({ error: `no data: ${req.body}` });
+    //     } else {
+    //         let start = Date.now();
+    //         app.models.Game.findById(req.params.id)
+    //             .then(
+    //                 curGame => {
+    //                     console.log("FIND TOOK " + (Date.now() - start));
+    //                     if (!curGame) {
+    //                         res.status(404).send({ error: `unknown game: ${req.params.id}` });
+    //                     } else if (req.session.user._id !== curGame.owner) {
+    //                         res.status(404).send({ error: `invalid user: ${req.session.user}` })
+    //                     } else {
+    //                         start = Date.now();
+    //                         let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
+    //                         console.log("VALIDATE TOOK " + (Date.now() - start));
+    //                         if (validGame.error) {
+    //                             res.status(404).send({error: `invalid move: ${req.body}`});
+    //                         } else {
+    //                             start = Date.now();
+    //                             updateState(curGame, validGame, req.session.user.username)
+    //                             console.log("Update TOOK " + (Date.now() - start));
+    //                             start = Date.now();
+    //                             curGame.save(err => {
+    //                                 console.log("SAVE TOOK " + (Date.now() - start));
+    //                                 if (err) {
+    //                                     res.status(400).send({ error: 'failure updating game' });
+    //                                 } else {
+    //                                     start = Date.now();
+    //                                     res.status(201).send(curGame.state[curGame.state.length - 1]);
+    //                                     console.log("SEND TOOK " + (Date.now() - start));
+    //                                 }
+    //                             });
+    //                             updateCache(curGame);
+    //                         }
+    //                     }
+    //                 }, err => {
+    //                     res.status(404).send({ error: `unknown game: ${req.params.id}` });
+    //                 }
+    //             );
+    //     }
+    // });
+
     // Updates the game state.
     let updateState = (game, move, user) => {
-        let newState = JSON.parse(JSON.stringify(game.state[game.state.length - 1]));
+        // let newState = JSON.parse(JSON.stringify(game.state[game.state.length - 1]));
+        // console.log(game);
+        // console.log(move);
+        let newState = JSON.parse(JSON.stringify(game));
         let curSrc = newState[move.src];
         let cardAmount = move.cards.length;
         curSrc.splice(curSrc.length - cardAmount, cardAmount);
@@ -151,8 +213,12 @@ module.exports = app => {
             player: user
         };
 
-        game.state.push(newState);
-        game.moves.push(newMove);
+        // game.state.push(newState);
+        // game.moves.push(newMove);
+        return {
+            state: newState,
+            moves: newMove
+        }
     }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing
