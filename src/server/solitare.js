@@ -179,7 +179,7 @@ let getValidMoveToStack = card => {
 
     return {
         suit: card.suit,
-        value: newValue
+        value: newValue.toString()
     };
 };
 
@@ -251,7 +251,7 @@ let getValidMoveToPile = card => {
 
     return {
         suit: newSuit,
-        value: newValue
+        value: newValue.toString()
     };
 };
 
@@ -262,7 +262,7 @@ let createSingleMove = (srcArr, src, dst, card, moves) => {
     }
 
     let curCard = srcArr[srcArr.length - 1]
-    if (curCard.value == card.value && card.suit.includes(curCard.suit)) {
+    if (curCard.value === card.value && card.suit.includes(curCard.suit)) {
         moves.push({
             cards: [{
                 suit: curCard.suit, value: curCard.value
@@ -310,5 +310,6 @@ module.exports = {
     shuffleCards: shuffleCards,
     initialState: initialState,
     filterForProfile: filterForProfile,
-    validateMove: validateMove
+    validateMove: validateMove,
+    getValidMoveToStack : getValidMoveToStack,
 };

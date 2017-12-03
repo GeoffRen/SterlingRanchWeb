@@ -1,6 +1,7 @@
 /* Copyright G. Hemingway, 2017 - All rights reserved */
 'use strict';
 
+let _                           = require('underscore');
 
 import React, { Component }     from 'react';
 import { withRouter }           from 'react-router';
@@ -8,6 +9,7 @@ import { withRouter }           from 'react-router';
 /*************************************************************************/
 
 import { Pile } from './pile';
+import { getValidMoveToStack } from '../../server/solitare';
 
 class Game extends Component {
     constructor(props) {
@@ -31,11 +33,13 @@ class Game extends Component {
             discard: [],
         };
 
-        this.escFunction     = this.escFunction.bind(this);
-        this.onClick         = this.onClick.bind(this);
-        this.createMove      = this.createMove.bind(this);
-        this.removeHighlight = this.removeHighlight.bind(this);
-        this.getCardInfo     = this.getCardInfo.bind(this);
+        this.escFunction       = this.escFunction.bind(this);
+        this.onClick           = this.onClick.bind(this);
+        this.createMove        = this.createMove.bind(this);
+        this.removeHighlight   = this.removeHighlight.bind(this);
+        this.getCardInfo       = this.getCardInfo.bind(this);
+        this.autoComplete      = this.autoComplete.bind(this);
+        this.autoCompleteRound = this.autoCompleteRound.bind(this);
 
         this.fullScreenStyle = {
             position: "absolute",
@@ -88,7 +92,7 @@ class Game extends Component {
         // Click on a card in the discard that isn't the top during a three draw game.
         let topDiscard = this.state.discard[this.state.discard.length - 1];
         if (this.state.drawCount === 3 && cardInfo && cardInfo.pile === "discard"
-            && (cardInfo.card.value != topDiscard.value || cardInfo.card.suit != topDiscard.suit)) {
+            && (cardInfo.card.value !== topDiscard.value || cardInfo.card.suit !== topDiscard.suit)) {
             this.removeHighlight();
 
             // Click on the draw pile
@@ -120,7 +124,6 @@ class Game extends Component {
                 }
             }, () => {
                 this.createMove("draw");
-                console.log(this.state.draw);
             });
 
         // Click on face up card without a target selected.
@@ -155,7 +158,7 @@ class Game extends Component {
         let found = false;
         for (let curCard of this.state[this.state.target.pile]) {
             if (!found && curCard.suit === this.state.target.card.suit
-                && curCard.value == this.state.target.card.value) {
+                && curCard.value === this.state.target.card.value) {
                 found = true;
                 cardsArr.push({
                     suit: curCard.suit,
@@ -238,9 +241,93 @@ class Game extends Component {
         return null;
     }
 
+    // Finds and executes all moves from the piles to the stacks.
+    autoComplete() {
+        let moves = this.autoCompleteRound();
+        let movesProcessed = moves.length;
+        for (let move of moves) {
+            $.ajax({
+                url: `/v1/game/${this.props.match.params.id}`,
+                method: "put",
+                data: move,
+            }).then(data => {
+                this.setState({
+                    pile1: data.pile1,
+                    pile2: data.pile2,
+                    pile3: data.pile3,
+                    pile4: data.pile4,
+                    pile5: data.pile5,
+                    pile6: data.pile6,
+                    pile7: data.pile7,
+                    stack1: data.stack1,
+                    stack2: data.stack2,
+                    stack3: data.stack3,
+                    stack4: data.stack4,
+                    draw: data.draw,
+                    discard: data.discard,
+                    target: undefined
+                }, () => {
+                    movesProcessed--;
+                    if (movesProcessed === 0) {
+                        this.autoComplete();
+                    }
+                });
+            }).fail(err => {
+                console.log(err.responseText);
+            });
+        }
+    }
+
+    // Finds all the moves from a pile to a stack for the current state.
+    autoCompleteRound() {
+        let completableCards = {};
+        let stacks = ["stack1", "stack2", "stack3", "stack4"];
+        stacks.forEach(stackName => {
+            let stack = this.state[stackName];
+            let topStack = stack[stack.length - 1];
+            if (stack.length > 0 && topStack.value !== "king") {
+                let card = getValidMoveToStack(topStack);
+                card["up"] = true;
+                completableCards[stackName] = card;
+            }
+        });
+
+        let moves = [];
+        let piles = ["pile1", "pile2", "pile3", "pile4", "pile5", "pile6", "pile7"];
+        piles.forEach(pileName => {
+            let pile = this.state[pileName];
+            if (pile.length > 0) {
+                for (let stackName in completableCards) {
+                    if (!completableCards.hasOwnProperty(stackName)) {
+                        continue;
+                    }
+                    let topPile = pile[pile.length - 1];
+                    if (_.isEqual(completableCards[stackName], topPile)) {
+                        moves.push({
+                            cards: [{
+                                suit: topPile.suit,
+                                value: topPile.value
+                            }],
+                            src: pileName,
+                            dst: stackName
+                        });
+                    }
+                }
+            }
+        });
+
+        return moves;
+    }
+
     render() {
         return <div>
             <div onClick={this.removeHighlight} style={this.fullScreenStyle} />
+            <div className="col-sm-4" style={{position: "relative"}}>
+                <button className="btn btn-default" onClick={this.autoComplete}>End The Game</button>
+            </div>
+            <div className="col-sm-4 card-buttons">
+                <button className="btn btn-default" onClick={this.autoComplete}>Auto Complete</button>
+            </div>
             <div className="card-row">
                 <Pile
                     pileName="stack1"

@@ -1,3 +1,8 @@
+.card-buttons {
+    position: relative;
+    margin-bottom: 2em;
+}
+
 .card-row {
     position: relative;
     display: flex;

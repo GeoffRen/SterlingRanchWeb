@@ -105,7 +105,7 @@ module.exports = app => {
                         } else {
                             let validGame = Solitare.validateMove(curGame.state[curGame.state.length - 1], req.body);
                             if (validGame.error) {
-                                res.status(404).send({error: `invalid move: ${req.body.move}`});
+                                res.status(404).send({error: `invalid move: ${req.body}`});
                             } else {
                                 updateState(curGame, validGame, req.session.user.username)
                                 curGame.save(err => {
