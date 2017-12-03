@@ -226,7 +226,7 @@ class Game extends Component {
                 target: undefined
             });
         }).fail(err => {
-            console.log(err.responseText);
+            console.log(err.responseJSON.error);
             this.removeHighlight();
         });
     }
@@ -391,7 +391,7 @@ class Game extends Component {
                 }
             });
         }).fail(err => {
-            console.log(err.responseText);
+            console.log(err.responseJSON.error);
         });
     }
 

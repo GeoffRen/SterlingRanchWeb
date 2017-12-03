@@ -64,8 +64,16 @@ class MyApp extends Component {
                         <Game user={this.user}/> :
                         <Redirect to={'/login'}/>;
                 }}/>
-                <Route exact path="/results/:id" render={props => <Results user={this.user}/>}/>
-                <Route exact path="/results/:id/:moveid" render={props => <ResultGame user={this.user}/>}/>
+                <Route exact path="/results/:id" render={() => {
+                    return this.user.loggedIn() ?
+                        <Results user={this.user}/> :
+                        <Redirect to={'/login'}/>;
+                }}/>
+                <Route exact path="/results/:id/:moveid" render={() => {
+                    return this.user.loggedIn() ?
+                        <ResultGame user={this.user}/> :
+                        <Redirect to={'/login'}/>;
+                }}/>
             </div>
         </BrowserRouter>;
     }

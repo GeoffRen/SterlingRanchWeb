@@ -112,6 +112,12 @@ let validateMove = (state, requestedMove) => {
     }
 
     const moves = validMoves(state);
+
+    for (let x of moves) {
+        console.log(x);
+    }
+    console.log(requestedMove);
+
     if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
     } else {
@@ -282,7 +288,7 @@ let createMoves = (srcArr, src, dst, card, moves) => {
     let found = false;
     let cardsArr = [];
     for (let curCard of srcArr) {
-        if (curCard.up && curCard.value == card.value && card.suit.includes(curCard.suit)) {
+        if (curCard.up == "true" && curCard.value === card.value && card.suit.includes(curCard.suit)) {
             found = true;
             cardsArr.push({
                 suit: curCard.suit,

@@ -95,7 +95,7 @@ module.exports = app => {
         } else if (req.session.user.username !== req.body.owner) {
             res.status(401).send({ error: 'unauthorized' });
         } else if (!req.body || !req.body.move || !req.body.state) {
-            res.status(404).send({ error: `no data: ${req.body}` });
+            res.status(404).send({ error: 'no data' });
         } else {
 
             let state = req.body.state;
@@ -109,7 +109,7 @@ module.exports = app => {
 
             let move = Solitare.validateMove(state, req.body.move);
             if (move.error) {
-                res.status(404).send({ error: `invalid move: ${req.body.move}` });
+                res.status(404).send({ error: 'invalid move' });
             } else {
                 let updates = updateState(state, move, req.session.user.username)
                 app.models.Game.findByIdAndUpdate(req.params.id, { $push: updates }, { new: true } , (err, newState) => {
