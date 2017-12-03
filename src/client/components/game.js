@@ -16,6 +16,7 @@ class Game extends Component {
         super(props);
         this.state = {
             target: undefined,
+            owner: undefined,
             startDrag: { x: 0, y: 0 },
             drawCount: 1,
             pile1: [],
@@ -33,14 +34,15 @@ class Game extends Component {
             discard: [],
         };
 
-        this.escFunction       = this.escFunction.bind(this);
-        this.onClick           = this.onClick.bind(this);
-        this.createMove        = this.createMove.bind(this);
-        this.removeHighlight   = this.removeHighlight.bind(this);
-        this.getCardInfo       = this.getCardInfo.bind(this);
-        this.autoComplete      = this.autoComplete.bind(this);
-        this.autoCompleteRound = this.autoCompleteRound.bind(this);
-        this.executeMove       = this.executeMove.bind(this);
+        this.escFunction          = this.escFunction.bind(this);
+        this.onClick              = this.onClick.bind(this);
+        this.createMove           = this.createMove.bind(this);
+        this.removeHighlight      = this.removeHighlight.bind(this);
+        this.getCardInfo          = this.getCardInfo.bind(this);
+        this.autoComplete         = this.autoComplete.bind(this);
+        this.getMovesToStack      = this.getMovesToStack.bind(this);
+        this.getValidCardsToStack = this.getValidCardsToStack.bind(this);
+        this.executeMove          = this.executeMove.bind(this);
 
         this.fullScreenStyle = {
             position: "absolute",
@@ -59,6 +61,7 @@ class Game extends Component {
             url: `/v1/game/${this.props.match.params.id}`
         }).then(data => {
             this.setState({
+                owner: data.owner,
                 drawCount: data.drawCount,
                 pile1: data.pile1,
                 pile2: data.pile2,
@@ -72,7 +75,7 @@ class Game extends Component {
                 stack3: data.stack3,
                 stack4: data.stack4,
                 draw: data.draw,
-                discard: data.discard
+                discard: data.discard,
             });
         }).fail(err => {
             // TODO: Should show a helpful error message that the game could not be found
@@ -182,6 +185,7 @@ class Game extends Component {
 
         let data = {
             move: move,
+            owner: this.state.owner,
             state: {
                 pile1: this.state.pile1,
                 pile2: this.state.pile2,
@@ -236,7 +240,7 @@ class Game extends Component {
 
     getCardInfo(cardId) {
         for (let key in this.state) {
-            if (this.state.hasOwnProperty(key) && key !== "target" && key !== "startDrag" && key !== "drawCount") {
+            if (this.state.hasOwnProperty(key) && key !== "owner" && key !== "target" && key !== "startDrag" && key !== "drawCount") {
                 let found = false;
                 let card = null;
                 for (card of this.state[key]) {
@@ -264,16 +268,83 @@ class Game extends Component {
 
     // Finds and executes all moves from the piles to the stacks.
     autoComplete() {
-        let moves = this.autoCompleteRound();
-        console.log(moves);
+        let validCards = this.getValidCardsToStack();
+        let moves = this.getMovesToStack(validCards);
         if (moves.length > 0) {
             this.executeMove(moves, 0);
         }
     }
 
+    // Finds all cards (except aces) that can be moved to the stacks.
+    getValidCardsToStack() {
+        let validCards = {};
+        let stacks = ["stack1", "stack2", "stack3", "stack4"];
+        stacks.forEach(stackName => {
+            let stack = this.state[stackName];
+            let topStack = stack[stack.length - 1];
+            if (stack.length > 0 && topStack.value !== "king") {
+                let card = getValidMoveToStack(topStack);
+                card["up"] = true;
+                validCards[stackName] = card;
+            }
+        });
+
+        return validCards;
+    }
+
+    // Finds all the valid moves to the stacks from the piles.
+    getMovesToStack(validCards) {
+        let moves = [];
+        let piles = ["pile1", "pile2", "pile3", "pile4", "pile5", "pile6", "pile7"];
+        piles.forEach(pileName => {
+            let pile = this.state[pileName];
+            let topPile = pile[pile.length - 1];
+            if (pile.length > 0) {
+                if (topPile.value === "ace") {
+                    let stacks = ["stack1", "stack2", "stack3", "stack4"];
+                    for (let stackName of stacks) {
+                        if (!validCards[stackName]) {
+                            // So two aces aren't placed on the same stack.
+                            validCards[stackName] = "EXISTS";
+                            moves.push({
+                                cards: [{
+                                    suit: topPile.suit,
+                                    value: topPile.value
+                                }],
+                                src: pileName,
+                                dst: stackName
+                            });
+                            break;
+                        }
+                    }
+                } else {
+                    for (let stackName in validCards) {
+                        if (!validCards.hasOwnProperty(stackName)) {
+                            continue;
+                        }
+                        if (_.isEqual(validCards[stackName], topPile)) {
+                            moves.push({
+                                cards: [{
+                                    suit: topPile.suit,
+                                    value: topPile.value
+                                }],
+                                src: pileName,
+                                dst: stackName
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        return moves;
+    }
+
+    // Recursively executes all the moves.
     executeMove(moves, moveIdx) {
         let data = {
             move: moves[moveIdx],
+            owner: this.state.owner,
             state: {
                 pile1: this.state.pile1,
                 pile2: this.state.pile2,
@@ -316,72 +387,12 @@ class Game extends Component {
                 if (moveIdx < moves.length) {
                     this.executeMove(moves, moveIdx);
                 } else {
-                    console.log("COMPLETED A ROUND");
                     this.autoComplete();
                 }
             });
         }).fail(err => {
             console.log(err.responseText);
         });
-    }
-
-    // Finds all the moves from a pile to a stack for the current state.
-    autoCompleteRound() {
-        let completableCards = {};
-        let stacks = ["stack1", "stack2", "stack3", "stack4"];
-        stacks.forEach(stackName => {
-            let stack = this.state[stackName];
-            let topStack = stack[stack.length - 1];
-            if (stack.length > 0 && topStack.value !== "king") {
-                let card = getValidMoveToStack(topStack);
-                card["up"] = true;
-                completableCards[stackName] = card;
-            }
-        });
-
-        let moves = [];
-        let piles = ["pile1", "pile2", "pile3", "pile4", "pile5", "pile6", "pile7"];
-        piles.forEach(pileName => {
-            let pile = this.state[pileName];
-            let topPile = pile[pile.length - 1];
-            if (pile.length > 0) {
-                if (topPile.value === "ace") {
-                    for (let stackName of stacks) {
-                        if (!completableCards[stackName]) {
-                            // So two aces aren't placed on the same stack.
-                            completableCards[stackName] = "EXISTS";
-                            moves.push({
-                                cards: [{
-                                    suit: topPile.suit,
-                                    value: topPile.value
-                                }],
-                                src: pileName,
-                                dst: stackName
-                            });
-                            break;
-                        }
-                    }
-                } else {
-                    for (let stackName in completableCards) {
-                        if (!completableCards.hasOwnProperty(stackName)) {
-                            continue;
-                        }
-                        if (_.isEqual(completableCards[stackName], topPile)) {
-                            moves.push({
-                                cards: [{
-                                    suit: topPile.suit,
-                                    value: topPile.value
-                                }],
-                                src: pileName,
-                                dst: stackName
-                            });
-                        }
-                    }
-                }
-            }
-        });
-
-        return moves;
     }
 
     render() {

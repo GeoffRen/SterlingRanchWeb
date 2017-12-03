@@ -49,7 +49,11 @@ class MyApp extends Component {
                 }}/>
                 <Route path="/logout" render={props => <Logout user={this.user}/>}/>
                 <Route exact path="/profile/:username" render={props => <Profile user={this.user}/>}/>
-                <Route path="/profile/:username/edit" render={props => <Edit user={this.user}/>}/>
+                <Route path="/profile/:username/edit" render={() => {
+                    return this.user.loggedIn() ?
+                        <Edit user={this.user}/> :
+                        <Redirect to={'/login'}/>;
+                }}/>
                 <Route path="/start" render={() => {
                     return this.user.loggedIn() ?
                         <Start/> :

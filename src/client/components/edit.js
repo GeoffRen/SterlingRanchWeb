@@ -11,6 +11,9 @@ class Edit extends Component {
     constructor(props) {
         super(props);
         this.onSubmit = this.onSubmit.bind(this);
+        if (this.props.match.params.username !== this.props.user.username()) {
+            this.props.history.push(`/profile/${this.props.user.username()}/edit`);
+        }
     }
 
     onSubmit(ev) {
@@ -27,7 +30,7 @@ class Edit extends Component {
             data: data
         })
             .then(() => {
-                this.props.history.push(`/profile/${this.props.match.params.username}`);
+                this.props.history.push(`/profile/${this.props.user.username()}`);
             })
             .fail(err => {
                 let errorEl = document.getElementById('errorMsg');
