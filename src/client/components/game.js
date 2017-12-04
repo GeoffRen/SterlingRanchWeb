@@ -398,10 +398,7 @@ class Game extends Component {
     render() {
         return <div>
             <div onClick={this.removeHighlight} style={this.fullScreenStyle} />
-            <div className="col-sm-4" style={{position: "relative"}}>
-                <button className="btn btn-default" onClick={this.autoComplete}>End The Game</button>
-            </div>
-            <div className="col-sm-4 card-buttons">
+            <div className="card-buttons">
                 <button className="btn btn-default" onClick={this.autoComplete}>Auto Complete</button>
             </div>
             <div className="card-row">
