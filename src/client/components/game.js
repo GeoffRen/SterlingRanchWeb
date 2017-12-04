@@ -17,6 +17,7 @@ class Game extends Component {
         this.state = {
             target: undefined,
             owner: undefined,
+            score: 0,
             startDrag: { x: 0, y: 0 },
             drawCount: 1,
             pile1: [],
@@ -62,6 +63,7 @@ class Game extends Component {
         }).then(data => {
             this.setState({
                 owner: data.owner,
+                score: data.score,
                 drawCount: data.drawCount,
                 pile1: data.pile1,
                 pile2: data.pile2,
@@ -199,7 +201,8 @@ class Game extends Component {
                 stack3: this.state.stack3,
                 stack4: this.state.stack4,
                 draw: this.state.draw,
-                discard: this.state.discard
+                discard: this.state.discard,
+                score: this.state.score
             }
         }
 
@@ -210,20 +213,21 @@ class Game extends Component {
         }).then(data => {
             this.removeHighlight();
             this.setState({
-                pile1: data.pile1,
-                pile2: data.pile2,
-                pile3: data.pile3,
-                pile4: data.pile4,
-                pile5: data.pile5,
-                pile6: data.pile6,
-                pile7: data.pile7,
-                stack1: data.stack1,
-                stack2: data.stack2,
-                stack3: data.stack3,
-                stack4: data.stack4,
-                draw: data.draw,
-                discard: data.discard,
-                target: undefined
+                pile1: data.state.pile1,
+                pile2: data.state.pile2,
+                pile3: data.state.pile3,
+                pile4: data.state.pile4,
+                pile5: data.state.pile5,
+                pile6: data.state.pile6,
+                pile7: data.state.pile7,
+                stack1: data.state.stack1,
+                stack2: data.state.stack2,
+                stack3: data.state.stack3,
+                stack4: data.state.stack4,
+                draw: data.state.draw,
+                discard: data.state.discard,
+                target: undefined,
+                score: data.score
             });
         }).fail(err => {
             console.log(err.responseJSON.error);
@@ -241,7 +245,7 @@ class Game extends Component {
     getCardInfo(cardId) {
         for (let key in this.state) {
             if (this.state.hasOwnProperty(key) && key !== "owner" && key !== "target"
-                && key !== "startDrag" && key !== "drawCount") {
+                && key !== "startDrag" && key !== "drawCount" && key !== "score") {
                 let found = false;
                 let card = null;
                 for (card of this.state[key]) {
@@ -359,7 +363,8 @@ class Game extends Component {
                 stack3: this.state.stack3,
                 stack4: this.state.stack4,
                 draw: this.state.draw,
-                discard: this.state.discard
+                discard: this.state.discard,
+                score: this.state.score
             }
         }
 
@@ -382,7 +387,8 @@ class Game extends Component {
                 stack4: data.stack4,
                 draw: data.draw,
                 discard: data.discard,
-                target: undefined
+                target: undefined,
+                score: data.score
             }, () => {
                 moveIdx++;
                 if (moveIdx < moves.length) {

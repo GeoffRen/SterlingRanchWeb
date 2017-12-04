@@ -112,11 +112,18 @@ module.exports = app => {
                 res.status(404).send({ error: 'invalid move' });
             } else {
                 let updates = updateState(state, move, req.session.user.username)
-                app.models.Game.findByIdAndUpdate(req.params.id, { $push: updates }, { new: true } , (err, newState) => {
+                app.models.Game.findByIdAndUpdate(req.params.id,
+                    { $push: updates.updates, $inc: updates.score },
+                    { new: true } ,
+                    (err, newState) => {
                     if (err) {
                         res.status(400).send({ error: 'failure updating game' });
                     } else {
-                        res.status(201).send(newState.state[newState.state.length - 1]);
+                        // res.status(201).send(newState.state[newState.state.length - 1]);
+                        res.status(201).send({
+                            state: newState.state[newState.state.length - 1],
+                            score: newState.score
+                        });
                     }
                 });
             }
@@ -130,7 +137,11 @@ module.exports = app => {
         let cardAmount = move.cards.length;
         curSrc.splice(curSrc.length - cardAmount, cardAmount);
 
+        let turnedOver = false;
         if (curSrc.length > 0 && move.src !== "draw") {
+            // If the top card is not up then it will be turned up.
+            turnedOver = curSrc[curSrc.length - 1].up == "false";
+            console.log(turnedOver);
             curSrc[curSrc.length - 1].up = true;
         }
 
@@ -151,9 +162,49 @@ module.exports = app => {
         };
 
         return {
-            state: newState,
-            moves: newMove
+            updates: {
+                state: newState,
+                moves: newMove
+            },
+            score: {
+                score: calculatePoints(parseInt(game.score), move, turnedOver)
+            }
         }
+    }
+
+    let calculatePoints = (score, move, turnedOver) => {
+        let src = move.src.replace(/[0-9]/g, '');
+        let dst = move.dst.replace(/[0-9]/g, '');
+        let points = 0;
+        switch(src) {
+            case "discard":
+                switch(dst) {
+                    case "draw":
+                        points -= 100;
+                        break;
+                    case "stack":
+                        points += 10;
+                        break;
+                    case "pile":
+                        points += 5;
+                        break;
+                }
+                break;
+            case "pile":
+                if (turnedOver) {
+                    points += 5;
+                }
+                if (dst === "stack") {
+                    points += 10;
+                }
+                break;
+            case "stack":
+                if (dst === "pile") {
+                    points -= 15;
+                }
+                break;
+        }
+        return (score + points) > 0 ? points : -1 * score;
     }
 
     // Provide end-point to request shuffled deck of cards and initial state - for testing

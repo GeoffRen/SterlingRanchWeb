@@ -60,6 +60,7 @@ class Profile extends Component {
         let games = this.state.user.games.map((game, index) => (
             <Game key={index} game={game} index={index}/>
         ));
+        console.log(this.state.user.games);
         return <div className="row">
             <div className="center-block">
                 <p id="errorMsg" className="bg-danger"/>
