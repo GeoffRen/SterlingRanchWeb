@@ -10,9 +10,9 @@ import { GravHash }                     from './header';
 
 const Game = ({ game, index }) => {
     let date = new Date(game.start);
-    const url = game.active ? `/game/${game.id}` : `/results/${game.id}`;
     return <tr key={index}>
-        <th><Link to={url}>{game.active ? "Active" : "Complete"}</Link></th>
+        <th><Link to={`/game/${game.id}`}>Active</Link>
+            <Link to={`/results/${game.id}`}>{"\nResults"}</Link></th>
         <th>{date.toLocaleString()}</th>
         <th>{game.moves}</th>
         <th>{game.score}</th>
