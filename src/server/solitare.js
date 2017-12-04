@@ -112,12 +112,6 @@ let validateMove = (state, requestedMove) => {
     }
 
     const moves = validMoves(state);
-
-    for (let x of moves) {
-        console.log(x);
-    }
-    console.log(requestedMove);
-
     if (_.any(moves, move => _.isEqual(move, requestedMove))) {
         return requestedMove;
     } else {

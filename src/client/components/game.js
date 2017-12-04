@@ -240,7 +240,8 @@ class Game extends Component {
 
     getCardInfo(cardId) {
         for (let key in this.state) {
-            if (this.state.hasOwnProperty(key) && key !== "owner" && key !== "target" && key !== "startDrag" && key !== "drawCount") {
+            if (this.state.hasOwnProperty(key) && key !== "owner" && key !== "target"
+                && key !== "startDrag" && key !== "drawCount") {
                 let found = false;
                 let card = null;
                 for (card of this.state[key]) {
