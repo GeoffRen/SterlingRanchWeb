@@ -6,8 +6,10 @@
   "dependencies": {
     "body-parser": "^1.16.0",
     "bootstrap": "^3.3.7",
+    "chart.js": "^2.7.2",
     "express": "^4.14.1",
     "express-session": "^1.15.6",
+    "influx": "^5.0.7",
     "joi": "^13.0.0",
     "jquery": "^3.1.1",
     "md5": "^2.2.1",
