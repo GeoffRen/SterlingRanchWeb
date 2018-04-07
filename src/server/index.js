@@ -5,7 +5,8 @@ let path            = require('path'),
     express         = require('express'),
     bodyParser      = require('body-parser'),
     logger          = require('morgan'),
-    session         = require('express-session');
+    session         = require('express-session'),
+    Influx          = require('influx');
 
 let port = process.env.PORT ? process.env.PORT : 8080;
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : 'dev';
@@ -30,6 +31,38 @@ app.use(session({
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.models = {
+    water: {
+        measurement: 'water',
+        influx: new Influx.InfluxDB({
+            host: 'localhost',
+            database: 'utilities_usage',
+            schema: [
+                {
+                    measurement: 'water',
+                    tags: [
+                        'id_on_network',
+                        'home_id',
+                        'node_id',
+                        'value_id',
+                        'manufacturer_id',
+                        'product_id',
+                        'label'
+                    ],
+                    fields: {
+                        data: Influx.FieldType.FLOAT,
+                        units: Influx.FieldType.STRING,
+                        type: Influx.FieldType.STRING,
+                        type_val: Influx.FieldType.INTEGER
+                    }
+                }
+            ]
+        })
+    }
+};
+
+require('./api/water')(app);
 
 app.get('*', (req, res) => {
     let preloadedState = req.session.user ? {

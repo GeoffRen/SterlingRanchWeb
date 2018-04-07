@@ -12,36 +12,13 @@ class Analytics extends Component {
         this.state = {
             test: "JUST IN PLACE FOR NOW"
         };
-        this.influx = new Influx.InfluxDB({
-            host: 'localhost',
-            database: 'sterling_ranch',
-            schema: [
-                {
-                    measurement: 'value_refresh',
-                    tags: [
-                        'id_on_network',
-                        'home_id',
-                        'node_id',
-                        'value_id',
-                        'manufacturer_id',
-                        'product_id',
-                        'label'
-                    ],
-                    fields: {
-                        data: Influx.FieldType.FLOAT,
-                        units: Influx.FieldType.STRING,
-                        type: Influx.FieldType.STRING,
-                        type_val: Influx.FieldType.INTEGER
-                    }
-                }
-            ]
-        });
     }
 
     componentDidMount() {
-        this.influx.query(
-            `select * from value_refresh where "label" = 'Relative Humidity'`
-        ).then(results => {
+        $.ajax({
+            url: '/utilities/water/',
+        }).then(results => {
+            console.log(results);
             let xAxis = [];
             let data = [];
             console.log('Processing');
