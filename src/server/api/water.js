@@ -7,7 +7,7 @@ let Joi             = require('joi'),
 module.exports = app => {
 
     app.post('/utilities/water', (req, res) => {
-        console.log("~~~POST~~~");
+        console.log("~~~POST WATER~~~");
         if (!req.body || !req.body.timestamp || !req.body.tags || !req.body.fields) {
             res.status(404).send({error: 'no data'});
         } else {
@@ -20,9 +20,9 @@ module.exports = app => {
         }
     });
 
-    app.get('/utilities/water/', (req, res) => {
-        console.log("~~~GET~~~");
-        app.models.water.influx.query(`select * from ${app.models.water.measurement}`)
+    app.get('/utilities/water/:home_id', (req, res) => {
+        console.log(`~~~GET WATER FOR ${req.params.home_id}~~~`);
+        app.models.water.influx.query(`SELECT * FROM ${app.models.water.measurement} WHERE home_id = '${req.params.home_id}'`)
             .then(results => res.status(200).send(results),
                 err => res.status(400).send({error: err}));
     });

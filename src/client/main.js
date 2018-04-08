@@ -5,6 +5,7 @@ import { render }               from 'react-dom';
 import { BrowserRouter, Route } from 'react-router-dom';
 
 import Analytics                from './components/analytics';
+import Landing                  from './components/landing';
 
 require('./app.css');
 
@@ -16,7 +17,8 @@ class MyApp extends Component {
     render() {
         return <BrowserRouter>
             <div>
-                <Route exact path="/" component={Analytics}/>
+                <Route exact path="/" component={Landing}/>
+                <Route exact path="/:home_id" component={Analytics}/>
             </div>
         </BrowserRouter>;
     }

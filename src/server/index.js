@@ -63,6 +63,7 @@ app.models = {
 };
 
 require('./api/water')(app);
+require('./api/homes')(app);
 
 app.get('*', (req, res) => {
     let preloadedState = req.session.user ? {

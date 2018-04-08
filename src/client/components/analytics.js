@@ -9,14 +9,13 @@ const chart = require('chart.js');
 class Analytics extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            test: "JUST IN PLACE FOR NOW"
-        };
     }
 
     componentDidMount() {
+        let home_id = this.props.match.params.home_id;
+        console.log(home_id);
         $.ajax({
-            url: '/utilities/water/',
+            url: `/utilities/water/${home_id}`
         }).then(results => {
             console.log(results);
             let xAxis = [];
@@ -27,7 +26,6 @@ class Analytics extends Component {
                 data.push(result.data);
                 console.log(result);
             });
-            // console.log(xAxis + data);
             console.log('Done');
             let ctx = document.getElementById("myChart").getContext('2d');
             let myChart = new Chart(ctx, {
