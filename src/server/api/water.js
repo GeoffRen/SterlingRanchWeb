@@ -13,7 +13,6 @@ module.exports = app => {
         } else {
             req.body.measurement = app.models.water.measurement;
             req.body.timestamp = new Date(req.body.timestamp);  // influx library doesn't handle date strings well
-            console.log(req.body);
             app.models.water.influx.writePoints([req.body])
                 .then(() => res.status(200).send(),
                     err => res.status(400).send({error: err}));

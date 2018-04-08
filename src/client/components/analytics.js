@@ -17,7 +17,6 @@ class Analytics extends Component {
         $.ajax({
             url: `/utilities/water/${home_id}`
         }).then(results => {
-            console.log(results);
             let xAxis = [];
             let data = [];
             console.log('Processing');
