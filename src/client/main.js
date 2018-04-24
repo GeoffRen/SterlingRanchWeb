@@ -1,11 +1,12 @@
 "use strict";
 
-import React, { Component }     from 'react';
-import { render }               from 'react-dom';
-import { BrowserRouter, Route } from 'react-router-dom';
+import React, {Component} from 'react';
+import {render} from 'react-dom';
+import {BrowserRouter, Route, Link, Switch} from 'react-router-dom';
 
-import Analytics                from './components/analytics';
-import Landing                  from './components/landing';
+import Analytics from './components/analytics';
+import Landing from './components/landing';
+import Nav from './components/nav'
 
 require('./app.css');
 
@@ -17,10 +18,13 @@ class MyApp extends Component {
     render() {
         return <BrowserRouter>
             <div>
-                <Route exact path="/" component={Landing}/>
-                <Route exact path="/:home_id" component={Analytics}/>
+                <Nav/>
+                <Switch>
+                    <Route exact path="/" component={Landing}/>
+                    <Route exact path="/:home_id" component={Analytics}/>
+                </Switch>
             </div>
-        </BrowserRouter>;
+        </BrowserRouter>
     }
 }
 

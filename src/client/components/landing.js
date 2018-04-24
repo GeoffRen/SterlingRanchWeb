@@ -26,8 +26,8 @@ class Landing extends Component {
         let homes = this.state.homes.map((home, index) =>
             <Link to={`/${home.value}`} key={index}>{home.value}</Link>);
         return <div>
-            <h1>Landing Page</h1>
-            <div>{homes}</div>
+
+                <div>{homes}</div>
         </div>
     };
 }

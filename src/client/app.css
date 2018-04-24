@@ -5,11 +5,11 @@
 }
 
 .background{
-    background-color: whitesmoke;
+    background-color: #B0C4DE;
 }
 
 .container-fluid {
-    background-color: lightgray;
+    background-color: #B0C4DE;
 }
 
 .chart {
@@ -19,4 +19,12 @@
 .wrapper {
     border: 1px solid black;
     background-color: white;
+}
+
+.vertical-center {
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    border: 1px dashed deeppink;
 }
