@@ -1,8 +1,8 @@
 "use strict";
 
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {BrowserRouter, Route, Link, Switch} from 'react-router-dom';
+import React, {Component}               from 'react';
+import {render}                         from 'react-dom';
+import {BrowserRouter, Route, Switch}   from 'react-router-dom';
 
 import Analytics from './components/analytics';
 import Landing from './components/landing';

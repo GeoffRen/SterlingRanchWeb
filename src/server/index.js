@@ -1,4 +1,3 @@
-/* Copyright G. Hemingway, @2017 */
 'use strict';
 
 let path            = require('path'),
@@ -11,6 +10,7 @@ let path            = require('path'),
 let port = process.env.PORT ? process.env.PORT : 8080;
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : 'dev';
 
+// Setup express pipeline.
 let app = express();
 app.use(express.static(path.join(__dirname, '../../public')));
 if (env !== 'test') app.use(logger('dev'));
@@ -32,6 +32,7 @@ app.use(session({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set up InfluxDB connection.
 app.models = {
     water: {
         measurement: 'water',
@@ -65,6 +66,7 @@ app.models = {
 require('./api/water')(app);
 require('./api/homes')(app);
 
+// Start the app.
 app.get('*', (req, res) => {
     let preloadedState = req.session.user ? {
             username: req.session.user.username,

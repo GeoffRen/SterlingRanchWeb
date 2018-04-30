@@ -6,6 +6,7 @@ let Joi             = require('joi'),
 
 module.exports = app => {
 
+    // POST point to write shower data to our database.
     app.post('/utilities/water', (req, res) => {
         console.log("~~~POST WATER~~~");
         if (!req.body || !req.body.timestamp || !req.body.tags || !req.body.fields) {
@@ -19,6 +20,7 @@ module.exports = app => {
         }
     });
 
+    // GET point to get shower data from our database.
     app.get('/utilities/water/:home_id', (req, res) => {
         console.log(`~~~GET WATER FOR ${req.params.home_id}~~~`);
         app.models.water.influx.query(`SELECT * FROM ${app.models.water.measurement} WHERE home_id = '${req.params.home_id}'`)

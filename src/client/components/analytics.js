@@ -1,11 +1,12 @@
 'use strict';
 
 
-import React, { Component }     from 'react';
-import { withRouter }           from 'react-router';
+import React, {Component}       from 'react';
+import {withRouter}             from 'react-router';
 const Influx = require('influx');
 const chart = require('chart.js');
 
+// The dashboard page for a home.
 class Analytics extends Component {
     constructor(props) {
         super(props);
@@ -17,10 +18,7 @@ class Analytics extends Component {
         this.state = { chart: undefined };
     }
 
-    test() {
-        console.log("TEST");
-    }
-
+    // Query for data to populate the graphs with and then create the graphs with either this data or dummy data.
     componentDidMount() {
         let home_id = this.props.match.params.home_id;
         console.log(home_id);
@@ -43,6 +41,7 @@ class Analytics extends Component {
         });
     }
 
+    // Creates the bottom left line graph. Populates it initially with actual shower data from the database.
     createChart(xAxis, data, ctx) {
         let myChart = new Chart(ctx, {
             type: 'line',
@@ -66,8 +65,9 @@ class Analytics extends Component {
         this.setState({ chart: myChart });
     }
 
+    // Creates and populates the comparison bar graph with dummy data.
     createBarChart() {
-        let barChart = document.getElementById("barChart")
+        let barChart = document.getElementById("barChart");
         let myBar = new Chart(barChart, {
             type: 'bar',
             data: {
@@ -97,6 +97,7 @@ class Analytics extends Component {
         });
     }
 
+    // Creates and populates the main line chart with dummy data.
     createLineChart() {
         let lineChart = document.getElementById("lineChart");
         let myLine = new Chart(lineChart, {
@@ -139,6 +140,9 @@ class Analytics extends Component {
                 events: ['click', 'mousemove']
             }
             });
+
+        // When a point is clicked, find the point that was clicked and update the bottom left line chart
+        // as appropriately.
         lineChart.onclick = evt => {
             let activePoints = myLine.getElementsAtEvent(evt);
             if (activePoints.length > 0) {
@@ -157,6 +161,7 @@ class Analytics extends Component {
         };
     }
 
+    // Upon clicking a point in the main line graph, update the bottom left line chart to 'zoom' in on the data.
     lineClick(idx) {
         console.log("CLICKED " + idx);
         let ctx = document.getElementById("myChart").getContext('2d');
@@ -174,6 +179,7 @@ class Analytics extends Component {
         this.state.chart.update();
     }
 
+    // Render three different charts to display three different examples.
     render() {
         return <div>
             <h1 className={"col-sm-12 page-header header"}>Super Basic Example Dashboard</h1>
