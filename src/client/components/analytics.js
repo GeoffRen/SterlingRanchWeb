@@ -13,7 +13,6 @@ class Analytics extends Component {
         this.createChart = this.createChart.bind(this);
         this.createBarChart = this.createBarChart.bind(this);
         this.createLineChart = this.createLineChart.bind(this);
-        this.test = this.test.bind(this);
         this.lineClick = this.lineClick.bind(this);
         this.state = { chart: undefined };
     }
